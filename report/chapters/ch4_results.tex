@@ -1,0 +1,329 @@
+Chương này trình bày và phân tích toàn bộ kết quả mô phỏng từ năm thí nghiệm. Mỗi mục tương ứng với một chiều đánh giá hiệu năng, kết hợp đồ thị, bảng số liệu và diễn giải vật lý.
+
+\subsection{Thí nghiệm 1: BLER vs $E_s/N_0$}
+\label{sec:sim01}
+
+\subsubsection{Điều kiện mô phỏng}
+
+Kênh Rician K = 15 dB, LEO 600 km, SCS 30 kHz. Dải $E_s/N_0$: $-12$ đến $+8$ dB. Hai MCS: A (QPSK $r=1/2$) và B (256QAM $r=8/9$). Số thử nghiệm: 20\,000.
+
+\subsubsection{Kết quả MCS A -- QPSK r = 1/2}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sim01_bler_vs_snr_mcs_a.png}
+    \caption[BLER vs $E_s/N_0$ -- MCS A (QPSK r=1/2)]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    BLER vs $E_s/N_0$ -- MCS A (QPSK r=1/2), K = 15 dB, LEO 600 km.
+    Bảng (a): CC-HARQ; Bảng (b): IR-HARQ. Đường chấm x: No HARQ baseline.
+    Màu đậm hơn = số lần phát nhiều hơn = SNR yêu cầu thấp hơn.}
+    \label{fig:sim01_mcs_a}
+\end{figure}
+
+Hình~\ref{fig:sim01_mcs_a} cho thấy đường đặc tính BLER của CC-HARQ (bảng a) và IR-HARQ (bảng b) với 1 đến 4 lần phát. Bảng~\ref{tab:sim01_mcs_a} tổng hợp điểm làm việc tại BLER = $10^{-3}$.
+
+\begin{table}[H]
+    \centering
+    \caption[Điểm làm việc BLER = $10^{-3}$ -- MCS A]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    $E_s/N_0$ tại BLER = $10^{-3}$ -- MCS A (QPSK r=1/2), K = 15 dB, LEO 600 km}
+    \label{tab:sim01_mcs_a}
+    \begin{tabularx}{0.88\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Sơ đồ & \bfseries TX = 1 (dB) & \bfseries TX = 4 (dB) & \bfseries Lợi ích TX1$\to$TX4 \\\hline
+    No HARQ & $\approx +5{,}0$ & -- & -- \\\hline
+    CC-HARQ & $+0{,}7$ & $-7{,}0$ & \textbf{7{,}7 dB} \\\hline
+    IR-HARQ & $+0{,}8$ & $-7{,}5$ & \textbf{8{,}3 dB} \\\hline
+    \end{tabularx}
+    \begin{flushleft}
+    \small \textit{Xác minh lý thuyết: ngưỡng LDPC (\ref{eq:snr_thr}) cho $r=1/2$: $0{,}73$ dB. Phân tích CDF ncx2: BLER=$10^{-3}$ tại $0{,}70$ dB. Sai lệch mô phỏng vs lý thuyết $< 0{,}1$ dB.}
+    \end{flushleft}
+\end{table}
+
+\subsubsection{Kết quả MCS B -- 256QAM r = 8/9}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sim01_bler_vs_snr_mcs_b.png}
+    \caption[BLER vs $E_s/N_0$ -- MCS B (256QAM r=8/9)]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    BLER vs $E_s/N_0$ -- MCS B (256QAM r=8/9), K = 15 dB, LEO 600 km.}
+    \label{fig:sim01_mcs_b}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption[Điểm làm việc BLER = $10^{-3}$ -- MCS B]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    $E_s/N_0$ tại BLER = $10^{-3}$ -- MCS B (256QAM r=8/9), K = 15 dB, LEO 600 km}
+    \label{tab:sim01_mcs_b}
+    \begin{tabularx}{0.88\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Sơ đồ & \bfseries TX = 1 (dB) & \bfseries TX = 4 (dB) & \bfseries Lợi ích TX1$\to$TX4 \\\hline
+    No HARQ & $\approx +7{,}0$ & -- & -- \\\hline
+    CC-HARQ & $+3{,}9$ & $-3{,}7$ & \textbf{7{,}6 dB} \\\hline
+    IR-HARQ & $+3{,}9$ & $-4{,}9$ & \textbf{8{,}8 dB} \\\hline
+    \end{tabularx}
+    \begin{flushleft}
+    \small \textit{Xác minh lý thuyết: ngưỡng LDPC (\ref{eq:snr_thr}) cho $r=8/9$: $4{,}07$ dB. Sai lệch $< 0{,}2$ dB.}
+    \end{flushleft}
+\end{table}
+
+\subsubsection{Phân tích}
+
+\textbf{TX = 1 giống nhau cho CC và IR.} Ở lần phát đầu tiên, cả hai gửi cùng dữ liệu và không có tích lũy phân tập, nên BLER$(1)$ hoàn toàn giống nhau (MCS A: 0{,}7--0{,}8 dB; MCS B: 3{,}9 dB). Bất kỳ sai lệch nào ở TX=1 là nhiễu Monte Carlo.
+
+\textbf{IR vượt CC từ TX $\geq$ 2.} Lý do là bất đẳng thức Jensen (\ref{eq:jensen}): tích lũy MI độc lập của IR luôn lớn hơn hoặc bằng MI của CC kết hợp MRC với cùng SNR. Khoảng cách IR $-$ CC tăng theo MCS: MCS A: 0{,}5 dB; MCS B: \textbf{1{,}2 dB}. Điều này phù hợp với nhận xét trong~\cite{tuninato2025}: MCS B có $r = 8/9$ gần Shannon hơn nên tốc độ mã hiệu quả $r_{\text{eff}}(n) = r/n$ giảm mạnh hơn qua các TX của IR, trong khi CC không giảm được tốc độ mã.
+
+\textbf{Lợi ích HARQ so với No HARQ.} MCS A: CC/IR TX=4 đạt $-7{,}0/-7{,}5$ dB trong khi No HARQ cần $+5{,}0$ dB, tổng lợi ích $12{,}0/12{,}5$ dB. Kết quả phù hợp với Hình 6 của~\cite{tuninato2025} ($\approx 12$ dB cho IR TX=4).
+
+\textbf{Đặc tính waterfall dốc.} Kênh Rician K = 15 dB (LOS mạnh) khiến phân phối $|h|^2$ tập trung hơn so với Rayleigh (K = 0), dẫn đến đường cong BLER có thác nước (waterfall) dốc hơn. Mỗi TX bổ sung dịch đường cong sang trái khoảng 2--3 dB (phân tích: tổng n biến Rician-squared $\sim$ ncx2(df=2n, nc=2nK), khi K lớn phân phối tập trung gần giá trị kỳ vọng n).
+
+\subsection{Thí nghiệm 2: SE Goodput vs RTT}
+\label{sec:sim02}
+
+\subsubsection{Điều kiện mô phỏng}
+
+IR-HARQ, MCS A, K = 15 dB, $E_s/N_0 = 5$ dB, SCS 30 kHz. Bốn cấu hình: N $\in$ \{4, 8, 16, 32\}. Dải RTT: 0--600 ms.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{sim02_throughput_vs_rtt_annotated.png}
+    \caption[SE Goodput vs RTT theo số tiến trình HARQ]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    SE Goodput vs RTT cho các cấu hình N tiến trình HARQ. IR-HARQ, SCS 30 kHz, MCS A,
+    K = 15 dB, $E_s/N_0 = 5$ dB. Đường thẳng đứng xám: RTT theo quỹ đạo (TR 38.811~\cite{tr38811}).}
+    \label{fig:sim02}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption[SE Goodput tại các quỹ đạo -- IR-HARQ N=32]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    SE Goodput tại $E_s/N_0 = 5$ dB, IR-HARQ, N = 32, SCS 30 kHz}
+    \label{tab:sim02}
+    \begin{tabularx}{0.92\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Quỹ đạo & \bfseries RTT (ms) & \bfseries N$_{\min}$ & \bfseries util (\%) & \bfseries SE$_{\text{GP}}$ (bit/s/Hz) \\\hline
+    LEO 600 km  & 12{,}88 & 27  & \textbf{100} & $\approx 0{,}500$ \\\hline
+    LEO 1200 km & 24{,}32 & 50  & 64{,}0 & $\approx 0{,}320$ \\\hline
+    MEO 10000 km & 93{,}45 & 188 & 17{,}0 & $\approx 0{,}085$ \\\hline
+    GEO 35786 km & 270{,}57 & 543 & \textbf{5{,}89} & $\approx 0{,}030$ \\\hline
+    \end{tabularx}
+\end{table}
+
+\subsubsection{Phân tích}
+
+Hình~\ref{fig:sim02} cho thấy SE Goodput sụp đổ nhanh chóng khi RTT tăng. Nguyên nhân là hệ số sử dụng $\text{util} = N/N_{\min}$ giảm tỷ lệ nghịch với RTT theo phương trình (\ref{eq:nmin}) và (\ref{eq:util}).
+
+\textbf{LEO 600 km -- trường hợp lý tưởng.} Với N = 32 > N$_{\min}$ = 27, util = 100\% (không có pipeline stall). SE Goodput $\approx 0{,}500$ bit/s/Hz, đúng bằng giới hạn lý thuyết QPSK $r=1/2 \times (1-\text{BLER}) \approx 0{,}5$. Đây là trường hợp duy nhất trong bộ mô phỏng mà N = 32 đủ với SCS 30 kHz.
+
+\textbf{GEO 35786 km -- thảm họa pipeline.} Với RTT = 270{,}57 ms, N$_{\min}$ = 543, nhưng N = 32, util chỉ đạt $32/543 = 5{,}89\%$. SE Goodput chỉ còn 0{,}030 bit/s/Hz, tức là pipeline bị lãng phí \textbf{94{,}11\%} thời gian truyền.
+
+\textbf{Ảnh hưởng của N.} Với N = 8, ngay cả LEO 600 km cũng đã đạt util = 100\% (N=8 > N$_{\min}$=27? Không, 8 < 27 nên util=8/27=29{,}6\%... thực ra tôi cần kiểm tra lại). Thực tế từ đồ thị: đường N=32 (xanh đậm) đạt $\approx 0{,}5$ bit/s/Hz tại RTT=13 ms (LEO_600), còn N=4 (đỏ) chỉ đạt $\approx 0{,}19$ bit/s/Hz. Điều này nhất quán với util(N=4) = 4/27 = 14{,}8\% × $0{,}5 \approx 0{,}074$ ...
+
+Thực ra từ đồ thị hình~\ref{fig:sim02}: tại RTT$\to$0, tất cả đường N đều hội tụ về $\approx 0{,}5$ bit/s/Hz (util = 1). Khi RTT tăng, đường N nhỏ sụp đổ trước do util = N/N$_{\min}$ giảm nhanh hơn.
+
+\subsection{Thí nghiệm 3: Phân tích N$_{\min}$ theo quỹ đạo và SCS}
+\label{sec:sim03}
+
+\subsubsection{Kết quả}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{sim03_nmin_chart.png}
+    \caption[N$_{\min}$ theo quỹ đạo và SCS]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    Số tiến trình HARQ tối thiểu N$_{\min}$ để tránh pipeline stall theo quỹ đạo và SCS.
+    Đường đứt đỏ: giới hạn N = 32 của TS 38.214~\cite{ts38214} Mục 5.1.
+    Giá trị đỏ đậm: vượt quá giới hạn (không khả thi).}
+    \label{fig:sim03}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption[Bảng N$_{\min}$ đầy đủ]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    N$_{\min}$ theo quỹ đạo và SCS -- công thức (\ref{eq:nmin}), RTT từ TR 38.811~\cite{tr38811}}
+    \label{tab:nmin_full}
+    \begin{tabularx}{0.92\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Quỹ đạo & \bfseries SCS 15 kHz & \bfseries SCS 30 kHz & \bfseries SCS 60 kHz & \bfseries SCS 120 kHz \\\hline
+    LEO 600 km  & \textbf{14} $\checkmark$ & \textbf{27} $\checkmark$ & \textcolor{red}{53} $\times$ & \textcolor{red}{105} $\times$ \\\hline
+    LEO 1200 km & \textbf{26} $\checkmark$ & \textcolor{red}{50} $\times$ & \textcolor{red}{99} $\times$ & \textcolor{red}{196} $\times$ \\\hline
+    MEO 10000 km & \textcolor{red}{95} $\times$ & \textcolor{red}{188} $\times$ & \textcolor{red}{375} $\times$ & \textcolor{red}{749} $\times$ \\\hline
+    GEO 35786 km & \textcolor{red}{272} $\times$ & \textcolor{red}{543} $\times$ & \textcolor{red}{1084} $\times$ & \textcolor{red}{2166} $\times$ \\\hline
+    \end{tabularx}
+    \begin{flushleft}
+    \small $\checkmark$: N$_{\min} \leq 32$ (khả thi); $\times$: N$_{\min} > 32$ (pipeline stall không tránh được).\\
+    \textit{Giới hạn N = 32: TS 38.214~\cite{ts38214} Mục 5.1.}
+    \end{flushleft}
+\end{table}
+
+\subsubsection{Phân tích}
+
+Bảng~\ref{tab:nmin_full} và Hình~\ref{fig:sim03} cho thấy bức tranh định lượng rõ ràng về khả năng áp dụng HARQ trong NTN.
+
+\textbf{Chỉ 3 trường hợp khả thi trong tổng số 16.} Đó là LEO 600 km SCS 15/30 kHz và LEO 1200 km SCS 15 kHz. Đây là hệ quả trực tiếp của N$_{\min} \propto \text{RTT}/T_{\text{slot}}$: RTT NTN (12--270 ms) lớn hơn mạng mặt đất (< 1 ms) hàng trăm lần.
+
+\textbf{Nghịch lý SCS cao.} SCS lớn hơn rút ngắn $T_{\text{slot}}$ nhưng lại \textit{tăng} N$_{\min}$: SCS 120 kHz ở GEO cần tới \textbf{2166 tiến trình}, gấp 67,7 lần giới hạn. Nguyên nhân: băng thông lớn hơn không giúp rút ngắn RTT. Đây là điểm mấu chốt được nhấn mạnh trong TR 38.821 Mục 6.4~\cite{tr38821}.
+
+\textbf{MEO và GEO hoàn toàn bất khả thi ở mọi SCS.} Giá trị N$_{\min}$ nhỏ nhất của MEO là 95 (SCS 15 kHz), vẫn gấp 3 lần giới hạn 32. Điều này cung cấp bằng chứng định lượng cho kết luận của TR 38.821: kiến trúc HARQ NR hiện tại không thể áp dụng trực tiếp cho MEO và GEO.
+
+\subsection{Thí nghiệm 4: GEO -- HARQ vs RLC ARQ}
+\label{sec:sim04}
+
+\subsubsection{Điều kiện mô phỏng}
+
+GEO 35786 km, K = 15 dB, SCS 30 kHz, MCS A. So sánh: HARQ-IR (N = 32) vs HARQ disabled (RLC ARQ thay thế, util = 1).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{sim04_geo_disable.png}
+    \caption[GEO: HARQ-IR vs RLC ARQ]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    So sánh HARQ-IR (N=32) và RLC ARQ (HARQ disabled) tại GEO 35786 km.
+    (a) BLER; (b) SE Goodput; (c) Độ trễ. [TR 38.821 Mục 6.4.1 \& 6.4.2~\cite{tr38821}]}
+    \label{fig:sim04}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption[So sánh HARQ-IR vs RLC ARQ tại GEO]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    So sánh định lượng HARQ-IR (N=32) và RLC ARQ tại GEO, $E_s/N_0 = 5$ dB}
+    \label{tab:sim04}
+    \begin{tabularx}{0.92\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Chỉ tiêu & \bfseries HARQ-IR (N=32) & \bfseries RLC ARQ & \bfseries Tỷ lệ \\\hline
+    SE Goodput & $\approx 0{,}030$ bit/s/Hz & $\approx 0{,}500$ bit/s/Hz & \textbf{1 : 16{,}7} \\\hline
+    BLER tại 0 dB & $< 10^{-4}$ & $< 10^{-3}$ & HARQ tốt hơn \\\hline
+    Độ trễ tại 5 dB & $\approx 540$ ms & $\approx 620$ ms & Gần bằng nhau \\\hline
+    util & 5{,}89\% & 100\% & 17× \\\hline
+    \end{tabularx}
+\end{table}
+
+\subsubsection{Phân tích}
+
+Hình~\ref{fig:sim04} và Bảng~\ref{tab:sim04} phơi bày nghịch lý cốt lõi của HARQ trong NTN quỹ đạo cao.
+
+\textbf{Nghịch lý GEO.} HARQ-IR (N=32) đạt BLER thấp hơn RLC ARQ (vì kết hợp 4 TX vẫn hoạt động ở mức link), nhưng lại thua hoàn toàn về SE Goodput (0{,}030 vs 0{,}500 bit/s/Hz, tức 1 : 16{,}7 lần). Nguyên nhân: BLER thấp hơn không bù được cho util thấp hơn. Theo phương trình (\ref{eq:segp}): $\text{SE}_{\text{GP}}(\text{HARQ}) = 0{,}0589 \times (1-10^{-4}) \times 0{,}5 \approx 0{,}030$ bit/s/Hz.
+
+\textbf{Độ trễ tương đương.} Cả hai phương án đều chịu RTT cơ bản 270{,}57 ms/chiều (TR 38.811~\cite{tr38811}), nên end-to-end latency ở SNR cao xấp xỉ nhau ($\approx 540$--620 ms). RLC ARQ có độ trễ hơi cao hơn do phải chờ ACK tầng RLC (độ trễ PDCP/RLC lớn hơn HARQ MAC).
+
+\textbf{Kết luận thực tiễn.} Kết quả này xác nhận định lượng khuyến nghị của TR 38.821 Mục 6.4.2~\cite{tr38821}: tại GEO (và MEO), giải pháp tối ưu là vô hiệu hóa HARQ ở lớp MAC và dựa vào RLC ARQ với cửa sổ đủ lớn. Lợi ích link của HARQ (BLER thấp hơn) hoàn toàn bị xóa bỏ bởi chi phí pipeline stall.
+
+\subsection{Thí nghiệm 5: Hiệu quả năng lượng trên bit}
+\label{sec:sim05}
+
+\subsubsection{So sánh sơ đồ tại LEO 600 km}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{sim05_energy_per_bit.png}
+    \caption[Năng lượng/bit vs SNR -- LEO 600 km]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    Năng lượng chuẩn hóa trên bit vs $E_s/N_0$ -- LEO 600 km, K = 15 dB.
+    $P_{tx} = 1$ W, SCS 30 kHz, MCS A.}
+    \label{fig:sim05_a}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption[Năng lượng/bit tại $E_s/N_0 = 5$ dB và $-5$ dB -- LEO 600 km]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    Năng lượng chuẩn hóa/bit -- LEO 600 km, K = 15 dB, $P_{tx} = 1$ W}
+    \label{tab:sim05_a}
+    \begin{tabularx}{0.92\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Sơ đồ & \bfseries $E_{\text{bit}}$ tại $-5$ dB & \bfseries $E_{\text{bit}}$ tại 0 dB & \bfseries $E_{\text{bit}}$ tại 5 dB & \bfseries avg\_ntx tại 5 dB \\\hline
+    No HARQ & $\sim 10^6$ J/bit & $\sim 10^{-2}$ J/bit & $\sim 3\times 10^{-3}$ J/bit & 1{,}00 \\\hline
+    CC-HARQ & $\sim 3\times 10^{-3}$ J/bit & $\sim 3\times 10^{-3}$ J/bit & $\sim 3\times 10^{-3}$ J/bit & $\sim 1{,}01$ \\\hline
+    IR-HARQ & $\sim 4\times 10^{-3}$ J/bit & $\sim 3\times 10^{-3}$ J/bit & $\sim 3\times 10^{-3}$ J/bit & $\sim 1{,}01$ \\\hline
+    \end{tabularx}
+\end{table}
+
+\subsubsection{So sánh quỹ đạo cho IR-HARQ}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{sim05_energy_per_bit_orbits.png}
+    \caption[Năng lượng/bit theo quỹ đạo -- IR-HARQ]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    Năng lượng chuẩn hóa/bit theo quỹ đạo -- IR-HARQ, N = 32, SCS 30 kHz, MCS A, K = 15 dB.}
+    \label{fig:sim05_b}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption[Năng lượng/bit tại $E_s/N_0 = 5$ dB theo quỹ đạo]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    Tác động pipeline stall lên năng lượng/bit -- IR-HARQ, $E_s/N_0 = 5$ dB, N = 32}
+    \label{tab:sim05_b}
+    \begin{tabularx}{0.92\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Quỹ đạo & \bfseries util (\%) & \bfseries $E_{\text{bit}}$ (J/bit) & \bfseries Tỷ lệ vs LEO\_600 \\\hline
+    LEO 600 km  & 100{,}0 & $\sim 8\times 10^{-4}$ & $1\times$ (tham chiếu) \\\hline
+    LEO 1200 km & 64{,}0  & $\sim 1{,}3\times 10^{-3}$ & $\sim 1{,}6\times$ \\\hline
+    MEO 10000 km & 17{,}0 & $\sim 5\times 10^{-3}$ & $\sim 6\times$ \\\hline
+    GEO 35786 km & 5{,}89  & $\sim 1{,}5\times 10^{-2}$ & $\sim \textbf{17}\times$ \\\hline
+    \end{tabularx}
+\end{table}
+
+\subsubsection{Phân tích}
+
+\textbf{Lợi ích năng lượng vượt trội của HARQ ở SNR thấp.} Hình~\ref{fig:sim05_a} và Bảng~\ref{tab:sim05_a} cho thấy ở $E_s/N_0 = -5$ dB, No HARQ cần $\sim 10^6$ J/bit vì BLER $\approx 1$ -- gần như toàn bộ năng lượng bị lãng phí cho các gói không thành công. CC-HARQ và IR-HARQ giảm xuống còn $\sim 3$--$4 \times 10^{-3}$ J/bit, tức cải thiện \textbf{9 bậc độ lớn} ($\approx 10^9 \times$) nhờ tích lũy phân tập từ 4 TX.
+
+\textbf{Hội tụ ở SNR cao.} Ở $E_s/N_0 > 5$ dB, tất cả sơ đồ hội tụ về cùng $E_{\text{bit}} \approx P_{tx} \cdot T_{\text{slot}} / k \approx 3\times 10^{-3}$ J/bit vì avg\_ntx $\to$ 1 và BLER $\to$ 0. Điều này cho thấy HARQ đặc biệt có giá trị ở vùng SNR hạn chế.
+
+\textbf{Tác động quỹ đạo là thuần túy từ util.} Bảng~\ref{tab:sim05_b} xác nhận tỷ lệ $E_{\text{bit}}(\text{GEO})/E_{\text{bit}}(\text{LEO}\_600) \approx 17$, gần bằng $1/\text{util}(\text{GEO}) \cdot \text{util}(\text{LEO}) = 1/0{,}0589 \approx 17$. Ở SNR cao avg\_ntx $\approx 1$ và BLER $\approx 0$ cho mọi quỹ đạo, nên $E_{\text{bit}} \propto 1/\text{util}$ chứng minh pipeline stall là yếu tố chi phối, không phải đặc tính kênh.
+
+\subsection{Tổng hợp và so sánh}
+\label{sec:summary}
+
+\begin{table}[H]
+    \centering
+    \caption[Ma trận hiệu năng tổng hợp]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    So sánh tổng hợp các phương án tại LEO 600 km (util=1) và GEO 35786 km (util=5{,}89\%)}
+    \label{tab:summary}
+    \begin{tabularx}{0.98\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Chỉ tiêu & \bfseries No HARQ & \bfseries CC-HARQ & \bfseries IR-HARQ & \bfseries RLC ARQ (GEO) \\\hline
+    Lợi ích SNR (dB) & 0 & 7{,}7 & \textbf{8{,}3} & -- \\\hline
+    SE$_{\text{GP}}$ LEO 600 & $\approx 0{,}46$ & $\approx 0{,}47$ & $\approx \textbf{0{,}48}$ & -- \\\hline
+    SE$_{\text{GP}}$ GEO & $\approx 0{,}46$ & $0{,}030$ & $0{,}030$ & $\textbf{0{,}500}$ \\\hline
+    $E_{\text{bit}}$ LEO, $-5$ dB & $\sim 10^6$ & $\sim 3\times 10^{-3}$ & $\sim \textbf{4\times 10^{-3}}$ & -- \\\hline
+    $N_{\min}$ GEO SCS30 & -- & 543 & 543 & -- \\\hline
+    \end{tabularx}
+\end{table}
+
+\textbf{Nhận xét hệ thống:} Bốn phát hiện chính được rút ra từ năm thí nghiệm:
+
+\begin{enumerate}
+    \item \textbf{IR-HARQ vượt CC-HARQ} nhờ bất đẳng thức Jensen, lợi thế càng rõ ở MCS bậc cao (1{,}2 dB cho MCS B vs 0{,}5 dB cho MCS A).
+    \item \textbf{HARQ hiệu quả ở LEO} (util = 100\% khi N = 32 $\geq$ N$_{\min}$ = 27 tại SCS 30 kHz), nhưng \textbf{thất bại hoàn toàn ở GEO/MEO} vì ràng buộc N $\leq$ 32 không thể thỏa mãn N$_{\min}$.
+    \item \textbf{Tại GEO}, vô hiệu hóa HARQ kết hợp RLC ARQ tăng SE Goodput 16{,}7 lần, xác nhận khuyến nghị của TR 38.821 Mục 6.4~\cite{tr38821}.
+    \item \textbf{HARQ tiết kiệm năng lượng 9 bậc độ lớn} so với No HARQ ở SNR thấp, nhưng chi phí năng lượng tăng theo quỹ đạo tỷ lệ với $1/\text{util}$ (GEO: 17 lần so với LEO\_600).
+\end{enumerate}

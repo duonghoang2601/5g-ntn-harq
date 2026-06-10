@@ -1,0 +1,170 @@
+% ============================================================
+%  Đồ án Tốt nghiệp Đại học — ĐHBK Hà Nội
+%  Đề tài: Đánh giá hiệu quả HARQ trong mạng 5G NTN
+%  Sinh viên: Hoàng Tuấn Dương  |  Năm: 2026
+%
+%  Compile (3 lần để refs/toc ổn định):
+%    xelatex main.tex
+%    bibtex  main
+%    xelatex main.tex
+%    xelatex main.tex
+% ============================================================
+\documentclass{article}
+
+% ── Font & encoding (XeLaTeX — UTF-8 native, không cần T5) ──────────────
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+% Times New Roman nếu có; fallback sang Latin Modern Serif (luôn có trong TeX Live)
+\IfFontExistsTF{Times New Roman}{%
+    \setmainfont{Times New Roman}%
+}{%
+    \setmainfont{Latin Modern Roman}%
+}
+
+% ── Layout ──────────────────────────────────────────────────────────────
+\usepackage[fontsize=13pt]{scrextend}
+\usepackage[paperheight=29.7cm,paperwidth=21cm,
+            right=2cm,left=3cm,top=2cm,bottom=2.5cm,twoside]{geometry}
+\renewcommand{\baselinestretch}{1.2}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{1cm}
+
+% ── Math ────────────────────────────────────────────────────────────────
+\usepackage{amsmath,amssymb,unicode-math}
+\setmathfont{Latin Modern Math}
+
+% ── Graphics & floats ───────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\graphicspath{{../results/figures/}}
+
+% ── Tables ──────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\newcolumntype{s}{>{\hsize=.3\hsize}X}
+\newcolumntype{y}{>{\hsize=.4\hsize}X}
+\newcolumntype{a}{>{\hsize=1.1\hsize}X}
+\renewcommand{\tabularxcolumn}[1]{>{\small}m{#1}}
+
+% ── Section heading format ───────────────────────────────────────────────
+\usepackage{titlesec}
+\setcounter{secnumdepth}{4}
+\titlespacing*{\section}{0pt}{0pt}{30pt}
+\titleformat*{\section}{\fontsize{16pt}{0pt}\selectfont\bfseries\centering}
+\titlespacing*{\subsection}{0pt}{6pt}{0pt}
+\titleformat*{\subsection}{\fontsize{14pt}{0pt}\selectfont\bfseries}
+\titlespacing*{\subsubsection}{0pt}{6pt}{0pt}
+\titleformat*{\subsubsection}{\fontsize{13pt}{0pt}\selectfont\bfseries\itshape}
+\titlespacing*{\paragraph}{0pt}{0pt}{0pt}
+\titleformat*{\paragraph}{\fontsize{13pt}{0pt}\selectfont\itshape}
+
+% ── Captions ────────────────────────────────────────────────────────────
+\usepackage{indentfirst}
+\usepackage[font=bf]{caption}
+\renewcommand{\figurename}{\fontsize{12pt}{0pt}\selectfont\bfseries Hình}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+\captionsetup[figure]{labelsep=space}
+\renewcommand{\tablename}{\fontsize{12pt}{0pt}\selectfont\bfseries Bảng}
+\renewcommand{\thetable}{\thesection.\arabic{table}}
+\captionsetup[table]{labelsep=space,position=top}
+
+% ── Equations & theorems ─────────────────────────────────────────────────
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\newtheorem{theorem}{Định lý}[section]
+\newtheorem{defn}[theorem]{Định nghĩa}
+\newtheorem{corollary}[theorem]{Hệ quả}
+\newtheorem{lemma}[theorem]{Bổ đề}
+
+% ── TOC / list names (Vietnamese) ────────────────────────────────────────
+\renewcommand{\contentsname}{MỤC LỤC}
+\renewcommand{\listfigurename}{DANH MỤC HÌNH VẼ}
+\renewcommand{\listtablename}{DANH MỤC BẢNG BIỂU}
+\renewcommand{\refname}{TÀI LIỆU THAM KHẢO}
+
+% ── Hyperlinks & lists ───────────────────────────────────────────────────
+\usepackage[unicode,hidelinks]{hyperref}
+\usepackage{enumitem}
+\setitemize{itemsep=0pt,leftmargin=1.25cm,topsep=3pt}
+
+% ============================================================
+\begin{document}
+
+\input{frontmatter/cover}
+\input{frontmatter/preface}
+
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+\tableofcontents
+\thispagestyle{empty}
+\cleardoublepage
+
+\input{frontmatter/abbreviations}
+
+{\let\oldnumberline\numberline
+\renewcommand{\numberline}{Hình~\oldnumberline}
+\listoffigures}
+\phantomsection\addcontentsline{toc}{section}{\numberline {}DANH MỤC HÌNH VẼ}
+\newpage
+
+{\let\oldnumberline\numberline
+\renewcommand{\numberline}{Bảng~\oldnumberline}
+\listoftables}
+\phantomsection\addcontentsline{toc}{section}{\numberline {}DANH MỤC BẢNG BIỂU}
+\newpage
+
+\input{frontmatter/abstract}
+
+% ============================================================
+\pagenumbering{arabic}
+
+% ────────── CHƯƠNG 1 ──────────
+\section*{CHƯƠNG 1.\quad GIỚI THIỆU}
+\addcontentsline{toc}{section}{\numberline{}CHƯƠNG 1. GIỚI THIỆU}
+\setcounter{section}{1}
+\setcounter{figure}{0}\setcounter{table}{0}\setcounter{equation}{0}
+\input{chapters/ch1_intro}
+\newpage
+
+% ────────── CHƯƠNG 2 ──────────
+\section*{CHƯƠNG 2.\quad CƠ SỞ LÝ THUYẾT}
+\addcontentsline{toc}{section}{\numberline{}CHƯƠNG 2. CƠ SỞ LÝ THUYẾT}
+\setcounter{section}{2}
+\setcounter{figure}{0}\setcounter{table}{0}\setcounter{equation}{0}
+\input{chapters/ch2_theory}
+\newpage
+
+% ────────── CHƯƠNG 3 ──────────
+\section*{CHƯƠNG 3.\quad PHƯƠNG PHÁP MÔ PHỎNG}
+\addcontentsline{toc}{section}{\numberline{}CHƯƠNG 3. PHƯƠNG PHÁP MÔ PHỎNG}
+\setcounter{section}{3}
+\setcounter{figure}{0}\setcounter{table}{0}\setcounter{equation}{0}
+\input{chapters/ch3_method}
+\newpage
+
+% ────────── CHƯƠNG 4 ──────────
+\section*{CHƯƠNG 4.\quad KẾT QUẢ VÀ PHÂN TÍCH}
+\addcontentsline{toc}{section}{\numberline{}CHƯƠNG 4. KẾT QUẢ VÀ PHÂN TÍCH}
+\setcounter{section}{4}
+\setcounter{figure}{0}\setcounter{table}{0}\setcounter{equation}{0}
+\input{chapters/ch4_results}
+\newpage
+
+% ────────── KẾT LUẬN ──────────
+\section*{KẾT LUẬN}
+\phantomsection\addcontentsline{toc}{section}{\numberline {}KẾT LUẬN}
+\setcounter{section}{5}
+\setcounter{figure}{0}\setcounter{table}{0}
+\input{chapters/ch5_conclusion}
+\newpage
+
+% ────────── TÀI LIỆU THAM KHẢO ──────────
+\phantomsection\addcontentsline{toc}{section}{\numberline {}TÀI LIỆU THAM KHẢO}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,145 @@
+Chương này mô tả phương pháp mô phỏng Monte Carlo được xây dựng, bao gồm mô hình kênh, mô hình BLER, bộ quản lý tiến trình HARQ và các tham số lựa chọn.
+
+\subsection{Tổng quan kiến trúc mô phỏng}
+
+Bộ mô phỏng được triển khai bằng Python (NumPy/SciPy/Matplotlib) với kiến trúc module hóa gồm bốn thành phần chính:
+
+\begin{itemize}
+    \item \textbf{src/channel/lms\_channel.py:} Tạo thực hiện kênh Rician i.i.d. theo TR 38.811~\cite{tr38811}.
+    \item \textbf{src/harq/bler\_model.py:} Mô hình BLER dựa trên ngưỡng MI, hỗ trợ CC và IR.
+    \item \textbf{src/harq/process\_manager.py:} Quản lý pipeline N tiến trình, tính util và SE Goodput.
+    \item \textbf{src/sim/sim\_0X.py:} Năm script mô phỏng độc lập, mỗi script đánh giá một chiều hiệu năng.
+\end{itemize}
+
+\subsection{Mô hình kênh Rician i.i.d.}
+
+\subsubsection{Lý do chọn mô hình i.i.d.}
+
+Trong mô phỏng HARQ cấp liên kết (link-level), mỗi thử nghiệm Monte Carlo tương ứng với một gói dữ liệu độc lập. Mô hình i.i.d. (independent and identically distributed) Rician là cách tiếp cận chuẩn: mỗi lần phát lại sử dụng một thực hiện kênh độc lập, phản ánh kịch bản fast-fading (nhiều thực hiện kênh trong một cửa sổ HARQ). Thay vì dùng mô hình Jake's chuỗi thời gian (có vấn đề chuẩn hóa năng lượng do pha đối xứng), mô hình i.i.d. Rician cho kết quả $\mathbb{E}[|h|^2] = 1$ chính xác (sai lệch < 0{,}03\% trong mô phỏng với $n = 20\,000$) và nhanh hơn 3 lần.
+
+\subsubsection{Tạo kênh}
+
+Với mỗi lần phát trong mỗi thử nghiệm:
+\begin{equation}\label{eq:channel_gen}
+    h_i = \sqrt{\frac{K}{K+1}} e^{j\phi_i} + \sqrt{\frac{1}{K+1}} \cdot \frac{g_I + jg_Q}{\sqrt{2}}
+\end{equation}
+trong đó $\phi_i \sim \mathcal{U}[0, 2\pi)$, $g_I, g_Q \sim \mathcal{N}(0,1)$ độc lập. Kiểm tra: $\mathbb{E}[|h|^2] = K/(K+1) + 1/(K+1) = 1$.
+
+SNR tức thời: $\gamma_i = |h_i|^2 \cdot (E_s/N_0)$.
+
+\subsection{Mô hình BLER dựa trên ngưỡng MI}
+
+\subsubsection{Tiêu chí thành công}
+
+Một khối được giải mã thành công sau $n$ lần phát khi tổng MI đạt ngưỡng:
+\begin{equation}\label{eq:success_criteria}
+    I^{(n)} \geq k_{\text{norm}} = 1{,}0
+\end{equation}
+
+\textbf{CC-HARQ} (kết hợp MRC):
+\begin{equation}\label{eq:cc_success}
+    m_{TX} \cdot \log_2\!\left(1 + \frac{\sum_{i=1}^n \gamma_i}{\Delta}\right) \geq 1
+\end{equation}
+
+\textbf{IR-HARQ} (tích lũy MI):
+\begin{equation}\label{eq:ir_success}
+    m_{TX} \cdot \sum_{i=1}^{n} \log_2\!\left(1 + \frac{\gamma_i}{\Delta}\right) \geq 1
+\end{equation}
+
+trong đó $m_{TX} = 1/r$ (chuẩn hóa, không chia cho max\_tx). Điều này đảm bảo TX = 1 cho CC và IR có kết quả giống nhau -- trùng khớp với No HARQ.
+
+\subsubsection{No HARQ}
+
+BLER không có HARQ (một lần phát duy nhất):
+\begin{equation}\label{eq:no_harq}
+    \text{BLER}_{\text{NoHARQ}} = \Pr\!\left[\frac{1}{r}\log_2\!\left(1+\frac{\gamma}{\Delta}\right) < 1\right]
+\end{equation}
+
+\subsubsection{Thuật toán Monte Carlo}
+
+\begin{enumerate}
+    \item Với mỗi giá trị $E_s/N_0$:
+    \begin{enumerate}
+        \item Tạo ma trận kênh $\mathbf{H} \in \mathbb{C}^{n_{\text{trials}} \times n_{\text{TX}}}$ theo phương trình (\ref{eq:channel_gen}).
+        \item Tính $\mathbf{\Gamma} = |\mathbf{H}|^2 \cdot (E_s/N_0)$.
+        \item Với mỗi $t$ từ 1 đến max\_TX:
+            \begin{itemize}
+                \item Tính $I^{(t)}$ theo CC hoặc IR.
+                \item Đánh dấu các thử nghiệm giải mã thành công (chưa giải mã trước đó).
+                \item Ghi nhận BLER$(t)$.
+            \end{itemize}
+        \item Tính avg\_ntx và BLER\_final.
+    \end{enumerate}
+\end{enumerate}
+
+Số thử nghiệm: $n_{\text{trials}} = 20\,000$ (Sim 01-04) và $25\,000$ (Sim 05). Seed cố định để tái lập kết quả.
+
+\subsection{Xác minh lý thuyết}
+
+BLER lần phát đầu (TX = 1) có thể tính giải tích từ CDF Rician (sciPy ncx2):
+\begin{equation}\label{eq:bler_analytical}
+    \text{BLER}_{\text{TX=1}} = \Pr\!\left[|h|^2 < \frac{\Delta(2^r - 1)}{E_s/N_0}\right] = F_{\text{ncx2}}\!\left(\frac{2(K+1)\Delta(2^r-1)}{E_s/N_0};\; df=2,\; nc=2K\right)
+\end{equation}
+
+Cho CC TX = n: tổng n biến Rician-squared là ncx2(df = 2n, nc = 2nK). Kết quả xác minh: sai lệch mô phỏng vs lý thuyết < 0{,}1 dB ở BLER = $10^{-3}$.
+
+\subsection{Bộ quản lý tiến trình và năng lượng}
+
+\subsubsection{N$_{\min}$ và util}
+
+Triển khai trực tiếp phương trình (\ref{eq:nmin}) và (\ref{eq:util}). SE Goodput theo phương trình (\ref{eq:segp}).
+
+\subsubsection{Năng lượng trên bit}
+
+Năng lượng chuẩn hóa trên bit thông tin được giao thành công~\cite{tuninato2025}:
+\begin{equation}\label{eq:ebit}
+    E_{\text{bit}} = \frac{P_{tx} \cdot \bar{n}_{TX} \cdot T_{\text{slot}}}{\text{util} \cdot (1 - \text{BLER}_{\text{final}})}
+\end{equation}
+trong đó $P_{tx} = 1$ W (chuẩn hóa), $\bar{n}_{TX}$ là số lần phát trung bình. Mẫu số $= $ thông lượng thực: mỗi slot tốt có $\text{util}$ khả năng gửi và tỷ lệ $1-\text{BLER}$ thành công.
+
+\subsection{Tham số mô phỏng}
+
+\begin{table}[H]
+    \centering
+    \caption[Tham số mô phỏng]{\bfseries\fontsize{12pt}{0pt}\selectfont Tham số đầu vào cho toàn bộ mô phỏng}
+    \label{tab:sim_params}
+    \begin{tabularx}{0.92\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Tham số & \bfseries Giá trị & \bfseries Nguồn \\\hline
+    Hệ số K & 15 dB & Tuninato 2025~\cite{tuninato2025}, Mục IV \\\hline
+    Tần số $f_c$ & 20 GHz & TR 38.811~\cite{tr38811} Ka-band \\\hline
+    Tốc độ UE & 50 km/h & Tuninato 2025~\cite{tuninato2025} \\\hline
+    SCS (mặc định) & 30 kHz & TS 38.214~\cite{ts38214} \\\hline
+    $T_{\text{slot}}$ (SCS 30 kHz) & 0{,}5 ms & TS 38.214~\cite{ts38214} \\\hline
+    MCS A & QPSK, $r=1/2$ & Tuninato 2025~\cite{tuninato2025} Bảng 8 \\\hline
+    MCS B & 256QAM, $r=8/9$ & Tuninato 2025~\cite{tuninato2025} Bảng 8 \\\hline
+    max\_retx & 3 (4 TX tổng) & TS 38.214~\cite{ts38214} Mục 5.1 \\\hline
+    N (HARQ processes) & 32 & TS 38.214~\cite{ts38214} Mục 5.1 \\\hline
+    Chuỗi RV & \{0, 2, 3, 1\} & TS 38.212~\cite{ts38212} Bảng 5.4.2.1-2 \\\hline
+    LDPC gap $\Delta_{\text{dB}}$ & 1{,}5 dB & Richardson \& Urbanke~\cite{richardson2008} \\\hline
+    $n_{\text{trials}}$ & 20\,000 -- 25\,000 & -- \\\hline
+    \end{tabularx}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption[RTT theo quỹ đạo NTN]{\bfseries\fontsize{12pt}{0pt}\selectfont RTT (Round-Trip Time) theo quỹ đạo -- payload tái sinh, góc ngẩng 10°}
+    \label{tab:orbit_rtt}
+    \begin{tabularx}{0.75\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Quỹ đạo & \bfseries Độ cao (km) & \bfseries RTT (ms) \\\hline
+    LEO & 600 & 12{,}88 \\\hline
+    LEO & 1200 & 24{,}32 \\\hline
+    MEO & 10000 & 93{,}45 \\\hline
+    GEO & 35786 & 270{,}57 \\\hline
+    \end{tabularx}
+    \begin{flushleft}
+    \small \textit{Nguồn: TR 38.811, Bảng 5.3.4.1-1 và 5.3.2.1-1~\cite{tr38811}.}
+    \end{flushleft}
+\end{table}

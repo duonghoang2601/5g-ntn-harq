@@ -1,0 +1,54 @@
+\subsection*{Kết luận chung}
+\phantomsection\addcontentsline{toc}{subsection}{\numberline {}Kết luận chung}
+
+Đồ án đã xây dựng hoàn chỉnh bộ mô phỏng Monte Carlo cho HARQ trong 5G NTN và đánh giá hệ thống qua năm chiều hiệu năng. Bốn kết luận chính:
+
+\begin{enumerate}
+    \item \textbf{HARQ mang lại lợi ích link đáng kể ở LEO:} IR-HARQ với 4 TX đạt lợi ích 8{,}3 dB so với No HARQ tại BLER = $10^{-3}$ (MCS A, K = 15 dB), nhất quán với kết quả của~\cite{tuninato2025}. IR luôn vượt CC nhờ bất đẳng thức Jensen~(\ref{eq:jensen}).
+
+    \item \textbf{Pipeline stall là rào cản kiến trúc không thể vượt qua với tiêu chuẩn hiện tại:} Chỉ 3/16 tổ hợp quỹ đạo--SCS có N$_{\min} \leq 32$. MEO và GEO bất khả thi ở mọi cấu hình SCS. Đây không phải hạn chế vật lý mà là hạn chế giao thức -- cần sửa đổi chuẩn 3GPP.
+
+    \item \textbf{Tại GEO, vô hiệu hóa HARQ là quyết định đúng đắn:} RLC ARQ tăng SE Goodput 16{,}7 lần (0{,}030 $\to$ 0{,}500 bit/s/Hz) với độ trễ gần tương đương, xác nhận định lượng khuyến nghị của TR 38.821 Mục 6.4.2~\cite{tr38821}.
+
+    \item \textbf{HARQ cứu nguy hiệu quả năng lượng ở SNR thấp:} Cải thiện $\sim 10^9 \times$ so với No HARQ tại $-5$ dB, quan trọng cho thiết bị IoT vệ tinh pin giới hạn. Tuy nhiên, pipeline stall ở quỹ đạo cao làm tăng $E_{\text{bit}}$ tỷ lệ $1/\text{util}$ (GEO: 17 lần so với LEO\_600).
+\end{enumerate}
+
+\textbf{Khuyến nghị cấu hình:}
+
+\begin{table}[H]
+    \centering
+    \caption[Cấu hình HARQ khuyến nghị theo quỹ đạo]{\bfseries\fontsize{12pt}{0pt}\selectfont
+    Cấu hình HARQ tối ưu khuyến nghị cho từng quỹ đạo NTN}
+    \label{tab:recommendation}
+    \begin{tabularx}{0.98\textwidth}{
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X
+    | >{\centering\arraybackslash}X |}
+    \hline
+    \bfseries Quỹ đạo & \bfseries Cấu hình khuyến nghị & \bfseries Lý do \\\hline
+    LEO 600 km & IR-HARQ, max\_retx=3, SCS $\leq$ 30 kHz & util=100\%, IR cho lợi ích tối đa \\\hline
+    LEO 1200 km & IR-HARQ, max\_retx=3, SCS 15 kHz & Chỉ SCS 15 kHz khả thi \\\hline
+    MEO 10000 km & HARQ disabled + RLC ARQ & N$_{\min}=95$--749, vượt giới hạn 32 \\\hline
+    GEO 35786 km & \textbf{HARQ disabled + RLC ARQ} & SE tăng 16{,}7$\times$; N$_{\min}=272$--2166 \\\hline
+    \end{tabularx}
+\end{table}
+
+\subsection*{Hướng phát triển}
+\phantomsection\addcontentsline{toc}{subsection}{\numberline {}Hướng phát triển}
+
+\begin{enumerate}
+    \item \textbf{Kênh hai trạng thái LMS:} Mô hình Markov good/bad (TR 38.811 Mục 6.7.2~\cite{tr38811}) để xét hiệu ứng che khuất -- sẽ làm giảm hiệu quả HARQ trong trạng thái bad.
+    \item \textbf{HARQ với N mở rộng:} Đánh giá lợi ích nếu 3GPP Release 19 tăng giới hạn N$_{\max}$ (Work Item NTN HARQ enhancement) hoặc cho phép HARQ bất đồng bộ.
+    \item \textbf{Tương quan thời gian kênh:} Mô phỏng với kênh có tương quan (Jake's model đúng) để đánh giá lợi ích phân tập trong slow-fading (UE tĩnh, $T_c \gg T_{\text{slot}}$).
+    \item \textbf{Kết hợp với AMC:} Phân tích link adaptation động -- chọn MCS theo trạng thái kênh dự đoán để giảm avg\_ntx và tối ưu E$_{\text{bit}}$.
+\end{enumerate}
+
+\subsection*{Kiến nghị và đề xuất}
+\phantomsection\addcontentsline{toc}{subsection}{\numberline {}Kiến nghị và đề xuất}
+
+Bộ mô phỏng này có thể được mở rộng trực tiếp để hỗ trợ các nghiên cứu tiếp theo:
+\begin{itemize}
+    \item Thêm module kênh hai trạng thái (src/channel/lms\_channel.py đã có cấu trúc sẵn).
+    \item Tích hợp bộ mã hóa/giải mã LDPC thực (thư viện \texttt{sionna} hoặc \texttt{openairinterface}) để thay thế mô hình MI-threshold.
+    \item Mở rộng Sim 04 với nhiều giá trị N (từ 32 đến 512) để tìm N ngưỡng cho MEO/GEO.
+\end{itemize}
