@@ -32,7 +32,7 @@ Hình~\ref{fig:sim01_mcs_a} cho thấy đường đặc tính BLER của CC-HARQ
     | >{\centering\arraybackslash}X
     | >{\centering\arraybackslash}X |}
     \hline
-    \bfseries Sơ đồ & \bfseries TX = 1 (dB) & \bfseries TX = 4 (dB) & \bfseries Lợi ích TX1$\to$TX4 \\\hline
+    \bfseries Sơ đồ & \bfseries TX = 1 (dB) & \bfseries TX = 4 (dB) & \bfseries Độ lợi TX1$\to$TX4 \\\hline
     No HARQ & $\approx +5{,}0$ & -- & -- \\\hline
     CC-HARQ & $+0{,}7$ & $-7{,}0$ & \textbf{7{,}7 dB} \\\hline
     IR-HARQ & $+0{,}8$ & $-7{,}5$ & \textbf{8{,}3 dB} \\\hline
@@ -63,7 +63,7 @@ Hình~\ref{fig:sim01_mcs_a} cho thấy đường đặc tính BLER của CC-HARQ
     | >{\centering\arraybackslash}X
     | >{\centering\arraybackslash}X |}
     \hline
-    \bfseries Sơ đồ & \bfseries TX = 1 (dB) & \bfseries TX = 4 (dB) & \bfseries Lợi ích TX1$\to$TX4 \\\hline
+    \bfseries Sơ đồ & \bfseries TX = 1 (dB) & \bfseries TX = 4 (dB) & \bfseries Độ lợi TX1$\to$TX4 \\\hline
     No HARQ & $\approx +7{,}0$ & -- & -- \\\hline
     CC-HARQ & $+3{,}9$ & $-3{,}7$ & \textbf{7{,}6 dB} \\\hline
     IR-HARQ & $+3{,}9$ & $-4{,}9$ & \textbf{8{,}8 dB} \\\hline
@@ -79,9 +79,9 @@ Hình~\ref{fig:sim01_mcs_a} cho thấy đường đặc tính BLER của CC-HARQ
 
 \textbf{IR vượt CC từ TX $\geq$ 2.} Lý do là bất đẳng thức Jensen (\ref{eq:jensen}): tích lũy MI độc lập của IR luôn lớn hơn hoặc bằng MI của CC kết hợp MRC với cùng SNR. Khoảng cách IR $-$ CC tăng theo MCS: MCS A: 0{,}5 dB; MCS B: \textbf{1{,}2 dB}. Điều này phù hợp với nhận xét trong~\cite{tuninato2025}: MCS B có $r = 8/9$ gần Shannon hơn nên tốc độ mã hiệu quả $r_{\text{eff}}(n) = r/n$ giảm mạnh hơn qua các TX của IR, trong khi CC không giảm được tốc độ mã.
 
-\textbf{Lợi ích HARQ so với No HARQ.} MCS A: CC/IR TX=4 đạt $-7{,}0/-7{,}5$ dB trong khi No HARQ cần $+5{,}0$ dB, tổng lợi ích $12{,}0/12{,}5$ dB. Kết quả phù hợp với Hình 6 của~\cite{tuninato2025} ($\approx 12$ dB cho IR TX=4).
+\textbf{Độ lợi HARQ so với No HARQ.} MCS A: CC/IR TX=4 đạt $-7{,}0/-7{,}5$ dB trong khi No HARQ cần $+5{,}0$ dB, độ lợi tổng $12{,}0/12{,}5$ dB. Kết quả phù hợp với Hình 6 của~\cite{tuninato2025} ($\approx 12$ dB cho IR TX=4).
 
-\textbf{Đặc tính waterfall dốc.} Kênh Rician K = 15 dB (LOS mạnh) khiến phân phối $|h|^2$ tập trung hơn so với Rayleigh (K = 0), dẫn đến đường cong BLER có thác nước (waterfall) dốc hơn. Mỗi TX bổ sung dịch đường cong sang trái khoảng 2--3 dB (phân tích: tổng n biến Rician-squared $\sim$ ncx2(df=2n, nc=2nK), khi K lớn phân phối tập trung gần giá trị kỳ vọng n).
+\textbf{Đặc tính waterfall dốc.} Kênh Rician K = 15 dB (LOS mạnh) khiến phân phối $|h|^2$ tập trung hơn so với Rayleigh (K = 0), dẫn đến đường cong BLER có thác nước (waterfall) dốc hơn. Mỗi TX bổ sung dịch đường cong sang trái khoảng 2--3 dB, nhất quán với đặc tính phân phối $\chi^2$ không tâm: khi tích lũy $n$ TX, bậc tự do tăng lên $2n$ nên phương sai tương đối giảm và đường cong waterfall dốc dần.
 
 \subsection{Thí nghiệm 2: SE Goodput vs RTT}
 \label{sec:sim02}
@@ -127,9 +127,7 @@ Hình~\ref{fig:sim02} cho thấy SE Goodput sụp đổ nhanh chóng khi RTT tă
 
 \textbf{GEO 35786 km -- thảm họa pipeline.} Với RTT = 270{,}57 ms, N$_{\min}$ = 543, nhưng N = 32, util chỉ đạt $32/543 = 5{,}89\%$. SE Goodput chỉ còn 0{,}030 bit/s/Hz, tức là pipeline bị lãng phí \textbf{94{,}11\%} thời gian truyền.
 
-\textbf{Ảnh hưởng của N.} Với N = 8, ngay cả LEO 600 km cũng đã đạt util = 100\% (N=8 > N$_{\min}$=27? Không, 8 < 27 nên util=8/27=29{,}6\%... thực ra tôi cần kiểm tra lại). Thực tế từ đồ thị: đường N=32 (xanh đậm) đạt $\approx 0{,}5$ bit/s/Hz tại RTT=13 ms (LEO_600), còn N=4 (đỏ) chỉ đạt $\approx 0{,}19$ bit/s/Hz. Điều này nhất quán với util(N=4) = 4/27 = 14{,}8\% × $0{,}5 \approx 0{,}074$ ...
-
-Thực ra từ đồ thị hình~\ref{fig:sim02}: tại RTT$\to$0, tất cả đường N đều hội tụ về $\approx 0{,}5$ bit/s/Hz (util = 1). Khi RTT tăng, đường N nhỏ sụp đổ trước do util = N/N$_{\min}$ giảm nhanh hơn.
+\textbf{Ảnh hưởng của N.} Từ Hình~\ref{fig:sim02}, tại RTT $\to$ 0 tất cả các đường hội tụ về $\approx 0{,}5$ bit/s/Hz vì util $\to$ 1 với mọi N. Khi RTT tăng, các đường N nhỏ sụp đổ trước do N$_{\min} \propto$ RTT tăng nhanh hơn N cố định. Tại RTT = 13 ms (LEO 600 km), N = 32 đạt util = 100\% (32 $\geq$ N$_{\min}$ = 27) nên SE Goodput $\approx 0{,}500$ bit/s/Hz; trong khi N = 16 có util = 16/27 = 59{,}3\% ($\approx 0{,}30$ bit/s/Hz), N = 8 có util = 8/27 = 29{,}6\% ($\approx 0{,}15$ bit/s/Hz), và N = 4 chỉ đạt util = 4/27 = 14{,}8\% ($\approx 0{,}074$ bit/s/Hz). Kết quả này khẳng định rằng ngay tại quỹ đạo LEO thấp nhất, N nhỏ vẫn gây tổn thất thông lượng đáng kể do pipeline stall.
 
 \subsection{Thí nghiệm 3: Phân tích N$_{\min}$ theo quỹ đạo và SCS}
 \label{sec:sim03}
@@ -223,7 +221,7 @@ Hình~\ref{fig:sim04} và Bảng~\ref{tab:sim04} phơi bày nghịch lý cốt l
 
 \textbf{Độ trễ tương đương.} Cả hai phương án đều chịu RTT cơ bản 270{,}57 ms/chiều (TR 38.811~\cite{tr38811}), nên end-to-end latency ở SNR cao xấp xỉ nhau ($\approx 540$--620 ms). RLC ARQ có độ trễ hơi cao hơn do phải chờ ACK tầng RLC (độ trễ PDCP/RLC lớn hơn HARQ MAC).
 
-\textbf{Kết luận thực tiễn.} Kết quả này xác nhận định lượng khuyến nghị của TR 38.821 Mục 6.4.2~\cite{tr38821}: tại GEO (và MEO), giải pháp tối ưu là vô hiệu hóa HARQ ở lớp MAC và dựa vào RLC ARQ với cửa sổ đủ lớn. Lợi ích link của HARQ (BLER thấp hơn) hoàn toàn bị xóa bỏ bởi chi phí pipeline stall.
+\textbf{Kết luận thực tiễn.} Kết quả này xác nhận định lượng khuyến nghị của TR 38.821 Mục 6.4.2~\cite{tr38821}: tại GEO (và MEO), giải pháp tối ưu là vô hiệu hóa HARQ ở lớp MAC và dựa vào RLC ARQ với cửa sổ đủ lớn. Độ lợi link của HARQ (BLER thấp hơn) hoàn toàn bị xóa bỏ bởi chi phí pipeline stall.
 
 \subsection{Thí nghiệm 5: Hiệu quả năng lượng trên bit}
 \label{sec:sim05}
@@ -289,11 +287,16 @@ Hình~\ref{fig:sim04} và Bảng~\ref{tab:sim04} phơi bày nghịch lý cốt l
 
 \subsubsection{Phân tích}
 
-\textbf{Lợi ích năng lượng vượt trội của HARQ ở SNR thấp.} Hình~\ref{fig:sim05_a} và Bảng~\ref{tab:sim05_a} cho thấy ở $E_s/N_0 = -5$ dB, No HARQ cần $\sim 10^6$ J/bit vì BLER $\approx 1$ -- gần như toàn bộ năng lượng bị lãng phí cho các gói không thành công. CC-HARQ và IR-HARQ giảm xuống còn $\sim 3$--$4 \times 10^{-3}$ J/bit, tức cải thiện \textbf{9 bậc độ lớn} ($\approx 10^9 \times$) nhờ tích lũy phân tập từ 4 TX.
+\textbf{Độ lợi năng lượng vượt trội của HARQ ở SNR thấp.} Hình~\ref{fig:sim05_a} và Bảng~\ref{tab:sim05_a} cho thấy ở $E_s/N_0 = -5$ dB, No HARQ cần $\sim 10^6$ J/bit vì BLER $\approx 1$ -- gần như toàn bộ năng lượng bị lãng phí cho các gói không thành công. CC-HARQ và IR-HARQ giảm xuống còn $\sim 3$--$4 \times 10^{-3}$ J/bit, tức cải thiện \textbf{9 bậc độ lớn} ($\approx 10^9 \times$) nhờ tích lũy phân tập từ 4 TX.
 
 \textbf{Hội tụ ở SNR cao.} Ở $E_s/N_0 > 5$ dB, tất cả sơ đồ hội tụ về cùng $E_{\text{bit}} \approx P_{tx} \cdot T_{\text{slot}} / k \approx 3\times 10^{-3}$ J/bit vì avg\_ntx $\to$ 1 và BLER $\to$ 0. Điều này cho thấy HARQ đặc biệt có giá trị ở vùng SNR hạn chế.
 
-\textbf{Tác động quỹ đạo là thuần túy từ util.} Bảng~\ref{tab:sim05_b} xác nhận tỷ lệ $E_{\text{bit}}(\text{GEO})/E_{\text{bit}}(\text{LEO}\_600) \approx 17$, gần bằng $1/\text{util}(\text{GEO}) \cdot \text{util}(\text{LEO}) = 1/0{,}0589 \approx 17$. Ở SNR cao avg\_ntx $\approx 1$ và BLER $\approx 0$ cho mọi quỹ đạo, nên $E_{\text{bit}} \propto 1/\text{util}$ chứng minh pipeline stall là yếu tố chi phối, không phải đặc tính kênh.
+\textbf{Tác động quỹ đạo là thuần túy từ util.} Bảng~\ref{tab:sim05_b} xác nhận tỷ lệ:
+\[
+\frac{E_{\text{bit}}(\text{GEO})}{E_{\text{bit}}(\text{LEO}_{600})} \approx 17
+\;\approx\; \frac{1}{\text{util}(\text{GEO})} = \frac{1}{0{,}0589} \approx 17
+\]
+Ở SNR cao avg\_ntx $\approx 1$ và BLER $\approx 0$ cho mọi quỹ đạo, nên $E_{\text{bit}} \propto 1/\text{util}$ chứng minh pipeline stall là yếu tố chi phối, không phải đặc tính kênh.
 
 \subsection{Tổng hợp và so sánh}
 \label{sec:summary}
@@ -311,10 +314,10 @@ Hình~\ref{fig:sim04} và Bảng~\ref{tab:sim04} phơi bày nghịch lý cốt l
     | >{\centering\arraybackslash}X |}
     \hline
     \bfseries Chỉ tiêu & \bfseries No HARQ & \bfseries CC-HARQ & \bfseries IR-HARQ & \bfseries RLC ARQ (GEO) \\\hline
-    Lợi ích SNR (dB) & 0 & 7{,}7 & \textbf{8{,}3} & -- \\\hline
-    SE$_{\text{GP}}$ LEO 600 & $\approx 0{,}46$ & $\approx 0{,}47$ & $\approx \textbf{0{,}48}$ & -- \\\hline
-    SE$_{\text{GP}}$ GEO & $\approx 0{,}46$ & $0{,}030$ & $0{,}030$ & $\textbf{0{,}500}$ \\\hline
-    $E_{\text{bit}}$ LEO, $-5$ dB & $\sim 10^6$ & $\sim 3\times 10^{-3}$ & $\sim \textbf{4\times 10^{-3}}$ & -- \\\hline
+    Độ lợi SNR (dB) & 0 & 7{,}7 & \textbf{8{,}3} & -- \\\hline
+    SE$_{\text{GP}}$ LEO 600 & $\approx 0{,}46$ & $\approx 0{,}47$ & $\approx \mathbf{0{,}48}$ & -- \\\hline
+    SE$_{\text{GP}}$ GEO & $\approx 0{,}46$ & $0{,}030$ & $0{,}030$ & $\mathbf{0{,}500}$ \\\hline
+    $E_{\text{bit}}$ LEO, $-5$ dB & $\sim 10^6$ & $\sim 3\times 10^{-3}$ & $\sim \mathbf{4\times 10^{-3}}$ & -- \\\hline
     $N_{\min}$ GEO SCS30 & -- & 543 & 543 & -- \\\hline
     \end{tabularx}
 \end{table}

@@ -90,7 +90,85 @@ Với $v = 50$ km/h, $f_c = 20$ GHz: $f_d \approx 926$ Hz, $T_c \approx 0{,}46$ 
 
 \subsubsection{Cơ chế pipeline HARQ}
 
-Trong 5G NR, giao thức HARQ sử dụng N tiến trình song song (N-process pipeline) để duy trì truyền liên tục khi chờ ACK/NACK~\cite{ts38321}. Nếu không đủ tiến trình, bộ phát phải dừng chờ -- gọi là \textit{pipeline stall}.
+Trong 5G NR, giao thức HARQ sử dụng N tiến trình song song (N-process pipeline) để duy trì truyền liên tục khi chờ ACK/NACK~\cite{ts38321}. Mỗi tiến trình $p_i$ truyền độc lập: bên phát gửi khối dữ liệu (TB) ở slot $t$, bên thu xử lý và trả ACK/NACK sau một khoảng thời gian bằng RTT; chỉ khi nhận được phản hồi, bên phát mới được dùng lại tiến trình đó. Nếu số tiến trình N không đủ để lấp đầy khoảng trống chờ, bộ phát phải dừng lại -- gọi là \textit{pipeline stall}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    tx/.style={draw, fill=blue!18, minimum width=0.76cm, minimum height=0.44cm,
+               font=\scriptsize, inner sep=0pt},
+    st/.style={draw, fill=red!22, minimum width=0.76cm, minimum height=0.44cm,
+               font=\scriptsize, inner sep=0pt},
+    >=stealth
+]
+\def\W{0.84}
+% y positions (widely spaced to avoid overlap)
+\def\yslot{3.2}   % slot numbers row
+\def\yNA{2.3}     % N=3 row
+\def\yfb{1.72}    % feedback path (just below N=3 boxes)
+\def\yRTT{1.25}   % RTT double arrow
+\def\yNB{0.3}     % N=5 row
+
+% Row labels
+\node[anchor=east, font=\footnotesize] at (-0.08, \yslot) {Slot:};
+\node[anchor=east, font=\footnotesize] at (-0.08, \yNA) {$N=3$:};
+\node[anchor=east, font=\footnotesize] at (-0.08, \yNB) {$N=5$:};
+
+% Slot numbers 0..9
+\foreach \i in {0,...,9}{
+    \node[font=\footnotesize] at (\i*\W+\W/2, \yslot) {\i};
+}
+
+% N=3 row
+\node[tx] at (0*\W+\W/2, \yNA) {$p_0$};
+\node[tx] at (1*\W+\W/2, \yNA) {$p_1$};
+\node[tx] at (2*\W+\W/2, \yNA) {$p_2$};
+\node[st] at (3*\W+\W/2, \yNA) {\tiny stall};
+\node[st] at (4*\W+\W/2, \yNA) {\tiny stall};
+\node[tx] at (5*\W+\W/2, \yNA) {$p_0'$};
+\node[tx] at (6*\W+\W/2, \yNA) {$p_1'$};
+\node[tx] at (7*\W+\W/2, \yNA) {$p_2'$};
+\node[st] at (8*\W+\W/2, \yNA) {\tiny stall};
+\node[st] at (9*\W+\W/2, \yNA) {\tiny stall};
+
+% N=5 row
+\node[tx] at (0*\W+\W/2, \yNB) {$p_0$};
+\node[tx] at (1*\W+\W/2, \yNB) {$p_1$};
+\node[tx] at (2*\W+\W/2, \yNB) {$p_2$};
+\node[tx] at (3*\W+\W/2, \yNB) {$p_3$};
+\node[tx] at (4*\W+\W/2, \yNB) {$p_4$};
+\node[tx] at (5*\W+\W/2, \yNB) {$p_0'$};
+\node[tx] at (6*\W+\W/2, \yNB) {$p_1'$};
+\node[tx] at (7*\W+\W/2, \yNB) {$p_2'$};
+\node[tx] at (8*\W+\W/2, \yNB) {$p_3'$};
+\node[tx] at (9*\W+\W/2, \yNB) {$p_4'$};
+
+% RTT double arrow (between two rows, unobstructed region)
+\draw[<->, thick]
+    (\W/2, \yRTT) -- node[above, font=\scriptsize]{RTT $= 4\,T_{\text{slot}}$}
+    (4*\W+\W/2, \yRTT);
+
+% Feedback path (L-shaped dashed): p0 TX → ACK back → p0' can TX
+\draw[->, dashed, gray!60, thick]
+    (\W/2, \yfb) -- ++(0, -0.18) -- ++(4*\W, 0) -- ++(0, 0.18);
+
+% Stall annotation ABOVE N=3 row (clear of slot numbers)
+\draw[<->, red!70, thin]
+    (3*\W, 2.78) -- node[above, font=\tiny, red!70]{stall $= N_{\min}\!-\!N$}
+    (5*\W, 2.78);
+
+% N_min vertical dashed line
+\draw[red!55, dashed, thin] (5*\W, \yNB-0.25) -- (5*\W, \yslot+0.35)
+    node[above, font=\tiny, red!65]{$N_{\min}\!=5$};
+
+\end{tikzpicture}
+\caption[Sơ đồ pipeline HARQ -- cơ chế và pipeline stall]{\bfseries\fontsize{12pt}{0pt}\selectfont
+Sơ đồ thời gian pipeline HARQ (ví dụ minh họa: RTT $= 4\,T_{\text{slot}}$, $N_{\min} = 5$).
+Hàng $N=3 < N_{\min}$: 2 slot stall sau mỗi 3 slot hữu ích -- util $= 3/5 = 60\%$.
+Hàng $N=5 = N_{\min}$: pipeline đầy liên tục -- util $= 100\%$.
+Trong NTN thực (LEO 600 km, SCS 30 kHz): RTT $\approx 12{,}88$ ms $\approx 26\,T_{\text{slot}}$, $N_{\min} = 27$.}
+\label{fig:harq_pipeline}
+\end{figure}
 
 \subsubsection{Công thức N$_{\min}$}
 

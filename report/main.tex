@@ -38,7 +38,7 @@
 \usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{calc}
-\graphicspath{{../results/figures/}}
+\graphicspath{{../results/figures/}{./}}
 
 % ── Tables ──────────────────────────────────────────────────────────────
 \usepackage{booktabs}
@@ -69,10 +69,10 @@
 \usepackage[font=bf]{caption}
 \renewcommand{\figurename}{\fontsize{12pt}{0pt}\selectfont\bfseries Hình}
 \renewcommand{\thefigure}{\thesection.\arabic{figure}}
-\captionsetup[figure]{labelsep=space}
+\captionsetup[figure]{labelsep=space,justification=centering,singlelinecheck=false}
 \renewcommand{\tablename}{\fontsize{12pt}{0pt}\selectfont\bfseries Bảng}
 \renewcommand{\thetable}{\thesection.\arabic{table}}
-\captionsetup[table]{labelsep=space,position=top}
+\captionsetup[table]{labelsep=space,position=top,justification=centering,singlelinecheck=false}
 
 % ── Equations & theorems ─────────────────────────────────────────────────
 \renewcommand{\theequation}{\thesection.\arabic{equation}}

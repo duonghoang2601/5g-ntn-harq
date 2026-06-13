@@ -81,11 +81,11 @@ def plot_bler_vs_snr(
         (axes[0], cc_shades, "CC-HARQ", bler_cc, "a"),
         (axes[1], ir_shades, "IR-HARQ", bler_ir, "b"),
     ]:
-        ax.semilogy(snr_db, bler_no_harq,
+        ax.semilogy(snr_db, np.clip(bler_no_harq, 1e-7, 1.0),
                     color="#888888", ls=":", lw=1.5, marker="x", markevery=6,
                     label="No HARQ (baseline)")
         for tx in range(1, max_tx + 1):
-            ax.semilogy(snr_db, bler_d[f"bler_tx{tx}"],
+            ax.semilogy(snr_db, np.clip(bler_d[f"bler_tx{tx}"], 1e-7, 1.0),
                         color=shades[tx - 1], lw=1.8,
                         marker=MARKERS[tx - 1], markevery=6,
                         label=f"TX = {tx}")
@@ -93,8 +93,8 @@ def plot_bler_vs_snr(
                    label=r"Target BLER $10^{-3}$")
         ax.set_xlabel(r"$E_s/N_0$ [dB]")
         ax.set_title(f"({panel}) {scheme}")
-        ax.set_ylim(1e-5, 1.05)
-        ax.legend(fontsize=8.5, loc="lower left")
+        ax.set_ylim(1e-7, 1.05)
+        ax.legend(fontsize=8.5, loc="upper right")
         ax.grid(True)
 
     axes[0].set_ylabel("BLER")
@@ -137,7 +137,7 @@ def plot_throughput_vs_rtt(
     ax.set_xlabel("RTT [ms]")
     ax.set_ylabel("Spectral Efficiency (Goodput) [bit/s/Hz]")
     ax.set_title(f"SE Goodput vs RTT — {scheme}")
-    ax.legend()
+    ax.legend(loc="upper right")
     ax.grid(True)
     fig.tight_layout()
     return fig
@@ -199,12 +199,12 @@ def plot_geo_disable(
     harq_kw = dict(color=COLORS["ir"],  marker="o", markevery=3, label="HARQ-IR (N=32)")
     rlc_kw  = dict(color=COLORS["rlc"], marker="s", markevery=3, label="RLC ARQ (HARQ disabled)", ls="--")
 
-    # (a) BLER
-    axes[0].semilogy(snr_db, geo_results["harq"]["bler"], **harq_kw)
-    axes[0].semilogy(snr_db, geo_results["rlc"]["bler"],  **rlc_kw)
+    # (a) BLER — clip zeros so semilogy renders all points
+    axes[0].semilogy(snr_db, np.clip(geo_results["harq"]["bler"], 1e-8, 1.0), **harq_kw)
+    axes[0].semilogy(snr_db, np.clip(geo_results["rlc"]["bler"],  1e-8, 1.0), **rlc_kw)
     axes[0].set_xlabel(r"$E_s/N_0$ [dB]")
     axes[0].set_ylabel("BLER")
-    axes[0].set_ylim(1e-8, 1.1)
+    axes[0].set_ylim(1e-10, 1.1)
     axes[0].legend(fontsize=8)
     axes[0].grid(True)
     axes[0].set_title("(a) BLER")
@@ -258,6 +258,7 @@ def plot_energy_per_bit(
     ax.set_xlabel(r"$E_s/N_0$ [dB]")
     ax.set_ylabel("Normalised Energy per Bit [J/bit, $P_{tx}=1$ W]")
     ax.set_title("Energy Efficiency vs SNR — LEO 600 km, $K=15$ dB")
+    ax.set_ylim(1e-5, 1e7)
     ax.legend()
     ax.grid(True)
     fig.tight_layout()

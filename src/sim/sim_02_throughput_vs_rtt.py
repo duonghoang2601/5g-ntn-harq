@@ -65,18 +65,19 @@ def run() -> None:
         ax.plot(RTT_SWEEP, se, color=colors[idx+1],
                 label=f"N={N}", linewidth=2)
 
-    for orbit, rtt in ORBIT_RTT_MS.items():
+    y_stagger = [0.40, 0.28, 0.14, 0.04]   # LEO600, LEO1200, MEO, GEO
+    for i, (orbit, rtt) in enumerate(ORBIT_RTT_MS.items()):
         nm = n_min(rtt, scs_khz=30)
         ax.axvline(rtt, color="gray", lw=0.8, ls="--", alpha=0.5)
-        ax.text(rtt+3, 0.01, f"{orbit.replace('_','\\n')}\n$N_{{min}}$={nm}",
-                fontsize=7, color="gray")
+        ax.text(rtt+3, y_stagger[i], f"{orbit.replace('_','\\n')}\n$N_{{min}}$={nm}",
+                fontsize=7, color="gray", va="bottom")
 
     ax.set_xlim(0, 620)
     ax.set_xlabel("RTT [ms]  (2 × propagation delay, regenerative payload)")
     ax.set_ylabel("SE Goodput [bit/s/Hz]")
     ax.set_title("Throughput Collapse vs RTT for Different HARQ Process Counts\n"
                  "[SCS 30 kHz, MCS A, IR-HARQ, $K=15$ dB, $E_s/N_0=5$ dB]")
-    ax.legend()
+    ax.legend(loc="upper right")
     ax.grid(True)
     fig2.tight_layout()
     savefig(fig2, "sim02_throughput_vs_rtt_annotated")
