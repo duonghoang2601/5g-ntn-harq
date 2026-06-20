@@ -10,7 +10,7 @@ Báo cáo đã xây dựng hoàn chỉnh bộ mô phỏng Monte Carlo cho HARQ t
 
     \item \textbf{Tại GEO, vô hiệu hóa HARQ là quyết định đúng đắn:} RLC ARQ tăng SE Goodput 16{,}7 lần (0{,}030 $\to$ 0{,}500 bit/s/Hz) với độ trễ gần tương đương, xác nhận định lượng khuyến nghị của TR 38.821 Mục 6.4.2~\cite{tr38821}.
 
-    \item \textbf{HARQ cứu nguy hiệu quả năng lượng ở SNR thấp:} Cải thiện $\sim 10^9 \times$ so với No HARQ tại $-5$ dB, quan trọng cho thiết bị IoT vệ tinh pin giới hạn. Tuy nhiên, pipeline stall ở quỹ đạo cao làm tăng $E_{\text{bit}}$ tỷ lệ $1/\text{util}$ (GEO: 17 lần so với LEO\_{600}).
+    \item \textbf{HARQ cải thiện mạnh hiệu quả năng lượng ở SNR thấp:} Năng lượng/bit với HARQ thấp hơn No HARQ $\sim 10^9$ lần tại $E_s/N_0 = -5$ dB -- ý nghĩa thực tiễn rõ ràng cho thiết bị IoT vệ tinh chạy bằng pin. Tuy nhiên, pipeline stall ở quỹ đạo cao làm tăng $E_{\text{bit}}$ tỷ lệ $1/\text{util}$ (GEO: 17 lần so với LEO\_{600}).
 \end{enumerate}
 
 \textbf{Khuyến nghị cấu hình:}
@@ -39,7 +39,7 @@ Báo cáo đã xây dựng hoàn chỉnh bộ mô phỏng Monte Carlo cho HARQ t
 \begin{enumerate}
     \item \textbf{Kênh hai trạng thái LMS:} Mô hình Markov good/bad (TR 38.811 Mục 6.7.2~\cite{tr38811}) để xét hiệu ứng che khuất -- sẽ làm giảm hiệu quả HARQ trong trạng thái bad.
     \item \textbf{HARQ với N mở rộng:} Đánh giá lợi ích nếu 3GPP Release 19 tăng giới hạn N$_{\max}$ (Work Item NTN HARQ enhancement) hoặc cho phép HARQ bất đồng bộ.
-    \item \textbf{Tương quan thời gian kênh:} Mô phỏng với kênh có tương quan (Jake's model đúng) để đánh giá lợi ích phân tập trong slow-fading (UE tĩnh, $T_c \gg T_{\text{slot}}$).
+    \item \textbf{Tương quan thời gian kênh:} Mô phỏng với kênh có tương quan thời gian (mô hình Jakes) để đánh giá lợi ích phân tập trong slow-fading (UE tĩnh, $T_c \gg T_{\text{slot}}$).
     \item \textbf{Kết hợp với AMC:} Phân tích link adaptation động -- chọn MCS theo trạng thái kênh dự đoán để giảm avg\_ntx và tối ưu E$_{\text{bit}}$.
 \end{enumerate}
 
