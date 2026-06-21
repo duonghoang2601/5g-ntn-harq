@@ -4,11 +4,11 @@
 Báo cáo đã xây dựng hoàn chỉnh bộ mô phỏng Monte Carlo cho IR-HARQ trong 5G NTN và đánh giá hệ thống qua ba chiều hiệu năng tại quỹ đạo LEO. Ba kết luận chính:
 
 \begin{enumerate}
-    \item \textbf{IR-HARQ mang lại độ lợi link đáng kể ở LEO:} 4 TX đạt độ lợi 8{,}3 dB so với No HARQ tại BLER = $10^{-3}$ (MCS A, K = 15 dB), nhất quán với kết quả của~\cite{tuninato2025}. IR vượt trội nhờ tích lũy thông tin tương hỗ độc lập qua từng TX theo bất đẳng thức Jensen~(\ref{eq:jensen}).
+    \item \textbf{IR-HARQ mang lại độ lợi link đáng kể ở LEO:} 4 TX đạt độ lợi 9{,}0 dB so với No HARQ tại BLER = $10^{-3}$ (MCS A, K = 15 dB), nhất quán với kết quả của~\cite{tuninato2025}. IR vượt trội nhờ tích lũy thông tin tương hỗ độc lập qua từng TX theo bất đẳng thức Jensen~(\ref{eq:jensen}).
 
     \item \textbf{Pipeline stall là ràng buộc kiến trúc quan trọng ngay cả ở LEO:} Chỉ 3/8 tổ hợp LEO--SCS có N$_{\min} \leq 32$. LEO 600 km với SCS $\leq$ 30 kHz và LEO 1200 km với SCS 15 kHz là các cấu hình khả thi. SCS cao hơn nghịch lý làm tăng N$_{\min}$ vì RTT là thời gian vật lý, không phụ thuộc băng thông -- đây là điểm mấu chốt của TR 38.821 Mục 6.4~\cite{tr38821}.
 
-    \item \textbf{IR-HARQ cải thiện mạnh hiệu quả năng lượng ở SNR thấp:} Năng lượng/bit với IR-HARQ thấp hơn No HARQ $\sim 10^9$ lần tại $E_s/N_0 = -5$ dB -- ý nghĩa thực tiễn rõ ràng cho thiết bị IoT vệ tinh chạy bằng pin. Tại LEO 600 km với util = 100\%, lợi ích này được khai thác toàn phần mà không có chi phí pipeline stall.
+    \item \textbf{IR-HARQ cải thiện mạnh hiệu quả năng lượng ở SNR thấp:} Năng lượng/bit với IR-HARQ thấp hơn No HARQ $\sim 500$ lần tại $E_s/N_0 = -5$ dB (gần 3 bậc độ lớn) -- ý nghĩa thực tiễn rõ ràng cho thiết bị IoT vệ tinh chạy bằng pin. Tại LEO 600 km với util = 100\%, lợi ích này được khai thác toàn phần mà không có chi phí pipeline stall.
 \end{enumerate}
 
 \textbf{Khuyến nghị cấu hình:}

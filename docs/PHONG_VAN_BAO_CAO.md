@@ -1,6 +1,7 @@
 # Ngân hàng câu hỏi bảo vệ báo cáo
 
 > Tổng hợp câu hỏi hay gặp khi bảo vệ báo cáo "Đánh giá hiệu quả cơ chế HARQ trong mạng 5G NTN".  
+> Phạm vi báo cáo: **IR-HARQ**, quỹ đạo **LEO 600 km và LEO 1200 km**, MCS A (QPSK r=1/2), SCS 30 kHz mặc định, K=15 dB.  
 > Mỗi mục gồm câu hỏi ngắn → câu trả lời cốt lõi → ví dụ/số liệu từ báo cáo để chứng minh.
 
 ---
@@ -13,60 +14,53 @@ Phương pháp Monte Carlo tạo ra hàng chục nghìn thử nghiệm ngẫu nh
 **Tại sao dùng cho HARQ:**  
 BLER của HARQ sau nhiều lần phát không có công thức đóng đơn giản — nó phụ thuộc vào phân phối kết hợp của nhiều biến ngẫu nhiên kênh Rician. Monte Carlo không cần biểu thức giải tích: chỉ cần mô phỏng đủ nhiều thử nghiệm thì xác suất thực nghiệm hội tụ về xác suất thực (luật số lớn). Với 20 000 thử nghiệm, sai số thống kê ở BLER = 10⁻³ là ±5 % (khoảng tin cậy 95 %).
 
-**Xác minh độc lập:** Báo cáo so sánh BLER TX=1 thu được từ Monte Carlo với công thức giải tích CDF Rician (scipy.stats.ncx2), sai lệch < 0,1 dB — xác nhận mô phỏng đúng.
-
 ---
 
 ## 2. Mô hình ngưỡng thông tin tương hỗ (MI-threshold) là gì? Tại sao dùng nó?
 
 **Định nghĩa:**  
-Thay vì mô phỏng bộ giải mã LDPC thực (quá chậm), ta dùng quy tắc: gói được giải mã thành công khi tổng thông tin tương hỗ (MI) tích lũy vượt ngưỡng 1,0 bit/channel use (tương đương: năng lượng thông tin đủ để giải mã). Ngưỡng SNR tương ứng của kênh AWGN được tính qua:
+Thay vì mô phỏng bộ giải mã LDPC thực (quá chậm), ta dùng quy tắc: gói được giải mã thành công khi tổng thông tin tương hỗ (MI) tích lũy vượt ngưỡng 1,0 bit/channel use. Ngưỡng SNR tương ứng của kênh AWGN được tính qua:
 
 $$\text{SNR}_{thr} = \Delta \cdot (2^r - 1)$$
 
-với $\Delta = 1{,}5$ dB là khoảng cách thực thi LDPC (LDPC implementation gap), $r$ là tốc độ mã.
+với $\Delta = 1{,}5$ dB là khoảng cách thực thi LDPC, $r$ là tốc độ mã. Với $r = 1/2$: SNR$_{thr}$ (AWGN) = $-2{,}3$ dB.
 
 **Tại sao dùng:**  
 - Nhanh hơn giải mã LDPC thực hàng nghìn lần.  
-- Đã được kiểm chứng trong tài liệu (Richardson & Urbanke 2008; Tuninato 2025): sai lệch so với thực tế < 0,2 dB ở BLER = 10⁻³.  
-- Cho phép so sánh CC và IR trong cùng một khung: MI của CC = log₂(1 + Σγᵢ/Δ), MI của IR = Σlog₂(1 + γᵢ/Δ).
+- Đã được kiểm chứng: sai lệch so với thực tế < 0,2 dB ở BLER = 10⁻³ (Richardson & Urbanke 2008; Tuninato 2025).
+
+**Chú ý quan trọng:**  
+Ngưỡng AWGN là −2,3 dB nhưng trong kênh Rician K=15 dB, BLER=10⁻³ đạt ở **+2,0 dB** — lề fading Rician khoảng 4,3 dB. Đây là lý do TX=1 và No HARQ cùng cho kết quả giống nhau và cùng cần +2,0 dB.
 
 ---
 
-## 3. Pipeline stall là gì? Tại sao xuất hiện ở MEO và GEO?
+## 3. Pipeline stall là gì? Tại sao xuất hiện ngay ở LEO?
 
 **Pipeline stall:**  
 Trong 5G NR, bên phát dùng N tiến trình HARQ song song để lấp đầy khoảng chờ ACK/NACK. Nếu N không đủ lớn để lấp toàn bộ khoảng RTT, bên phát phải ngồi chờ (idle) — gọi là pipeline stall. Số tiến trình tối thiểu tránh stall:
 
 $$N_{\min} = \left\lceil \frac{RTT}{T_{slot}} \right\rceil + 1$$
 
-**Tại sao MEO/GEO bị stall:**  
+**Tại sao LEO 1200 km cũng bị stall với SCS ≥ 30 kHz:**  
 RTT tỷ lệ thuận với khoảng cách quỹ đạo. Với SCS 30 kHz ($T_{slot}$ = 0,5 ms):
 
 | Quỹ đạo | RTT | $N_{\min}$ | Giới hạn TS 38.214 | Kết quả |
 |---------|-----|-----------|-------------------|---------|
 | LEO 600 km | 12,9 ms | 27 | 32 | Khả thi ✓ |
 | LEO 1200 km | 24,3 ms | 50 | 32 | Stall ✗ |
-| MEO 10 000 km | 93,5 ms | 188 | 32 | Stall nặng ✗ |
-| GEO 35 786 km | 270,6 ms | 543 | 32 | Stall 94 % ✗ |
 
-Tại GEO với N = 32, hệ số sử dụng chỉ đạt util = 32/543 = **5,89 %** — nghĩa là 94,11 % thời gian bên phát ngồi không.
+LEO 1200 km chỉ khả thi ở SCS 15 kHz ($N_{\min}$ = 26 ≤ 32). Nghịch lý: SCS cao hơn *tăng* $N_{\min}$ vì $T_{slot}$ ngắn hơn nhưng RTT vật lý không đổi.
 
 ---
 
-## 4. Goodput là gì? Dùng để đánh giá cái gì?
+## 4. Tại sao báo cáo không đánh giá SE Goodput?
 
-**Goodput (hay Throughput hiệu dụng)** là lượng dữ liệu *hữu ích* (gói được nhận đúng) truyền được trên một đơn vị thời gian và băng thông. Khác với throughput thô (đếm cả gói lỗi bị phát lại), goodput chỉ đếm dữ liệu thực sự đến đúng đích.
+**Vì báo cáo tập trung vào 3 chiều cốt lõi:**  
+1. Hiệu quả link: BLER vs SNR (Thí nghiệm 1)  
+2. Ràng buộc pipeline N_min (Thí nghiệm 2)  
+3. Hiệu quả năng lượng trên bit (Thí nghiệm 3)
 
-Trong báo cáo, SE Goodput (Spectral Efficiency Goodput) được định nghĩa:
-
-$$SE_{GP} = \text{util} \times (1 - BLER_{final}) \times r \times \log_2 M \quad \text{[bit/s/Hz]}$$
-
-- **util** = N/N_min: tỷ lệ thời gian bên phát thực sự phát (không stall)  
-- **(1 − BLER_final)**: xác suất gói được nhận đúng sau tối đa 4 TX  
-- **r · log₂M**: tốc độ bit danh nghĩa của MCS
-
-**Ý nghĩa:** SE Goodput cho thấy tác động *kép* của pipeline stall — không chỉ là lãng phí thời gian mà còn trực tiếp làm giảm băng thông khả dụng theo tỷ lệ util.
+SE Goodput = util × (1 − BLER) × r × log₂M là chỉ tiêu kết hợp của cả 3 chiều trên. Trong phạm vi báo cáo, LEO 600 km với SCS 30 kHz đạt util = 100% (không stall), nên SE Goodput ≈ (1 − BLER_final) × 0,5 bit/s/Hz — không cung cấp thêm thông tin mới so với BLER.
 
 ---
 
@@ -75,20 +69,18 @@ $$SE_{GP} = \text{util} \times (1 - BLER_{final}) \times r \times \log_2 M \quad
 | Thuật ngữ | Định nghĩa |
 |-----------|-----------|
 | **HARQ** | Hybrid ARQ: kết hợp FEC (sửa lỗi xuôi) + ARQ (phát lại có xác nhận) |
-| **CC-HARQ** | Chase Combining: mỗi lần phát lại gửi lại *cùng* khối bit, thu gộp bằng MRC |
 | **IR-HARQ** | Incremental Redundancy: mỗi lần phát lại gửi *bit dư thừa mới* (RV khác nhau) |
 | **BLER** | Block Error Rate: tỷ lệ gói bị lỗi sau giải mã |
 | **RTT** | Round-Trip Time: thời gian từ khi phát đến khi nhận được ACK/NACK |
 | **NTN** | Non-Terrestrial Network: mạng không mặt đất (vệ tinh, UAV) |
-| **LEO/MEO/GEO** | Quỹ đạo thấp (~600 km) / trung (~10 000 km) / cao (~36 000 km) |
-| **SCS** | Subcarrier Spacing: khoảng cách sóng mang con trong OFDM (15/30/60/120 kHz) |
-| **MCS** | Modulation and Coding Scheme: bộ điều chế + tốc độ mã (ví dụ: QPSK r=1/2) |
+| **LEO** | Low Earth Orbit: quỹ đạo thấp (~600–1200 km) |
+| **SCS** | Subcarrier Spacing: khoảng cách sóng mang con (15/30/60/120 kHz) |
+| **MCS A** | Modulation and Coding Scheme A: QPSK, r=1/2 |
 | **Rician K** | Tỷ số công suất LOS / tán xạ; K=15 dB = kênh LOS rất mạnh |
 | **Pipeline stall** | Trạng thái bên phát phải chờ vì không đủ tiến trình HARQ để lấp RTT |
 | **util** | Hệ số sử dụng đường truyền: util = min(1, N/N_min) |
-| **SE Goodput** | Hiệu suất phổ thực tế tính đến cả stall và lỗi: util × (1−BLER) × r × log₂M |
-| **RLC ARQ** | ARQ ở lớp RLC (lớp trên): không có soft combining, nhưng util = 100 % |
-| **MI** | Mutual Information (thông tin tương hỗ): đo lượng thông tin kênh có thể mang |
+| **E_bit** | Năng lượng chuẩn hóa trên bit thông tin được giao thành công |
+| **MI** | Mutual Information: đo lượng thông tin kênh có thể mang |
 | **LDPC gap Δ** | Khoảng cách giữa ngưỡng Shannon và ngưỡng giải mã LDPC thực tế (~1,5 dB) |
 
 ---
@@ -97,26 +89,23 @@ $$SE_{GP} = \text{util} \times (1 - BLER_{final}) \times r \times \log_2 M \quad
 
 Trong kiến trúc 5G NTN (TR 38.811), vệ tinh đóng vai trò **trạm thu phát di động (gNB) trên quỹ đạo** hoặc là relay. UE (thiết bị người dùng) — điện thoại, thiết bị IoT, thiết bị đầu cuối vệ tinh — giao tiếp trực tiếp với vệ tinh qua giao diện vô tuyến NR Uu, giống hệt cách giao tiếp với gNB mặt đất.
 
-3GPP Rel-17 chuẩn hóa chính xác giao diện này, bao gồm cả HARQ. Do đó, "UE tĩnh" hay "UE di chuyển 50 km/h" trong báo cáo chỉ đặc tả điều kiện fading của đầu cuối — hoàn toàn phù hợp với ngữ cảnh vệ tinh.
+3GPP Rel-17 chuẩn hóa chính xác giao diện này, bao gồm cả HARQ. "UE di chuyển 50 km/h" trong báo cáo chỉ đặc tả điều kiện fading của đầu cuối — hoàn toàn phù hợp với ngữ cảnh vệ tinh.
 
 ---
 
-## 7. Chase Combining và Incremental Redundancy khác nhau thế nào?
+## 7. Incremental Redundancy hoạt động thế nào? Tại sao tốt hơn truyền đơn?
 
-**Chase Combining (CC):**  
-Bên phát gửi lại *y hệt* gói ban đầu (RV = 0). Bên thu cộng tín hiệu nhận được theo MRC — tương đương cộng SNR:
-$$\gamma_{eff}^{(n)} = \sum_{i=1}^{n} \gamma_i$$
-
-**Incremental Redundancy (IR):**  
+**IR-HARQ:**  
 Mỗi lần phát lại gửi một phần *bit dư thừa khác* (RV ∈ {0,2,3,1} — lấy từ các vùng khác nhau của circular buffer LDPC). Bên thu tích lũy thông tin tương hỗ:
 $$I^{(n)} = \frac{1}{r} \sum_{i=1}^{n} \log_2\!\left(1 + \frac{\gamma_i}{\Delta}\right)$$
 
-**Tại sao IR luôn tốt hơn CC từ TX ≥ 2:**  
-Bất đẳng thức Jensen: với hàm lõm log₂, tổng log lớn hơn log của tổng:
-$$\sum_i \log_2(1+\gamma_i/\Delta) \;\geq\; \log_2\!\left(1 + \sum_i \gamma_i/\Delta\right)$$
-Do đó MI của IR ≥ MI của CC, dấu bằng chỉ khi TX = 1 hoặc tất cả γᵢ bằng nhau.
+**Tại sao IR tốt hơn truyền đơn (No HARQ):**  
+- No HARQ: 1 TX, nếu kênh xấu → gói lỗi, không phục hồi.  
+- IR-HARQ: tối đa 4 TX, tích lũy MI từ mỗi TX. Mỗi TX thêm log₂(1+γᵢ/Δ) → tổng MI tăng dần.  
+- Bất đẳng thức Jensen: tổng log lớn hơn log của tổng, nên IR tích lũy MI hiệu quả hơn Chase Combining.
 
-**Kết quả từ mô phỏng:** IR vượt CC 0,5 dB ở MCS A (QPSK r=1/2) và 1,2 dB ở MCS B (256QAM r=8/9). Khoảng cách tăng theo MCS vì tốc độ mã cao hơn làm lợi thế tích lũy MI của IR rõ rệt hơn.
+**Kết quả từ mô phỏng:**  
+TX=4 đạt BLER = 10⁻³ tại −7,0 dB, trong khi No HARQ cần +2,0 dB → IR-HARQ giảm yêu cầu SNR đi **9,0 dB**.
 
 ---
 
@@ -125,70 +114,105 @@ Do đó MI của IR ≥ MI của CC, dấu bằng chỉ khi TX = 1 hoặc tất 
 **Định nghĩa:** Vệ tinh có payload tái sinh (*regenerative*) giải mã toàn bộ tín hiệu nhận được từ mặt đất, xử lý gói IP/NR, rồi phát lại tín hiệu mới xuống mặt đất — giống như một gNB đặt trên quỹ đạo. Đối lập với payload trong suốt (*bent-pipe*) chỉ khuếch đại và chuyển tần tín hiệu.
 
 **Ảnh hưởng đến RTT:**  
-- **Payload trong suốt:** RTT = 2 × (truyền lan lên) + 2 × (truyền lan xuống) + trễ xử lý mặt đất.  
-- **Payload tái sinh:** RTT = (truyền lan lên + xuống) + trễ xử lý trên vệ tinh — **nhỏ hơn khoảng 2×** vì vệ tinh phản hồi ACK ngay mà không cần đợi tín hiệu xuống tới trạm mặt đất.
+- **Payload tái sinh:** RTT = (truyền lan lên + xuống) + trễ xử lý trên vệ tinh — **nhỏ hơn khoảng 2×** so với bent-pipe.
 
-Báo cáo sử dụng RTT của payload tái sinh (TR 38.811 Bảng 5.3.4.1-1) vì đây là cấu hình 3GPP Rel-17 khuyến nghị cho 5G NTN. RTT GEO ở góc ngẩng 10°: **270,57 ms** (so với ~540 ms nếu dùng bent-pipe).
+Báo cáo sử dụng RTT của payload tái sinh (TR 38.811 Bảng 5.3.4.1-1): LEO 600 km = **12,88 ms**, LEO 1200 km = **24,32 ms** (góc ngẩng 10°).
 
 ---
 
 ## 9. Hướng dẫn đọc và thuyết trình các biểu đồ Chương 4
 
-### Hình 4.1 & 4.2 — BLER vs $E_s/N_0$ (Thí nghiệm 1)
+### Hình 4.1 — BLER vs $E_s/N_0$ (Thí nghiệm 1)
 
-**Cách đọc:**  
-- Trục x: SNR (dB) — càng phải càng tốt.  
-- Trục y: BLER (thang log) — mục tiêu thiết kế là BLER = 10⁻³ (đường ngang đứt xám).  
-- Mỗi đường là một số lần phát TX = 1..4; màu đậm hơn = nhiều TX hơn.  
-- Nhìn xem mỗi TX dịch đường sang trái bao nhiêu dB so với TX trước.
+**Mô tả biểu đồ:**  
+Hệ trục bán-log. Trục x: $E_s/N_0$ (dB) từ −12 đến +8 dB. Trục y: BLER (log từ 10⁻⁷ đến 1). Có 6 đường:
+- Đường chấm xám (×): **No HARQ** — baseline 1 lần phát.  
+- 4 đường xanh tăng dần độ đậm: **IR TX=1 (nhạt) → TX=4 (đậm nhất)** — đậm hơn = nhiều TX hơn = hiệu năng tốt hơn.  
+- Đường ngang đứt xám: **mục tiêu BLER = 10⁻³**.
+
+**Cách đọc — gióng xuống từ vạch 10⁻³:**  
+Tìm giao điểm của mỗi đường với vạch ngang BLER = 10⁻³, sau đó chiếu xuống trục x:
+
+| Đường | Màu | Giao điểm với BLER=10⁻³ |
+|-------|-----|------------------------|
+| No HARQ | xám chấm | **+2,0 dB** |
+| IR TX=1 | xanh nhạt nhất | **+2,0 dB** (= No HARQ) |
+| IR TX=2 | xanh vừa | **−2,5 dB** |
+| IR TX=3 | xanh đậm vừa | **−5,0 dB** |
+| IR TX=4 | xanh đậm nhất | **−7,0 dB** |
+
+**Độ lợi tổng:** Đường đậm nhất (TX=4) giao BLER=10⁻³ ở −7,0 dB. Đường xám (No HARQ) giao ở +2,0 dB. Khoảng cách = **9,0 dB** — đây là độ lợi SNR của IR-HARQ.
+
+**Tại sao TX=1 và No HARQ cùng 2,0 dB?**  
+TX=1 của IR-HARQ là lần phát đầu tiên — chưa có tích lũy MI, giống hệt No HARQ. Chỉ từ TX=2 trở đi mới có phân tập.
 
 **Điểm nhấn khi thuyết trình:**  
-> "Nhìn vào TX=4 của IR-HARQ (đường xanh đậm nhất), nó đạt BLER = 10⁻³ ở −7,5 dB. Trong khi đó No HARQ cần +5 dB để đạt cùng BLER. Hiệu chênh 12,5 dB — đó là độ lợi HARQ. IR tốt hơn CC 0,5 dB tại cùng điểm làm việc vì tích lũy thông tin tương hỗ hiệu quả hơn (bất đẳng thức Jensen)."
+> "Nhìn vào đường xanh đậm nhất — IR TX=4 — nó cắt vạch BLER 10⁻³ ở −7 dB. Chiếu xuống trục x thì thấy. Đường xám No HARQ cắt ở +2 dB. Khoảng cách là 9 dB — đó là lợi thế của IR-HARQ: cùng chất lượng dịch vụ nhưng yêu cầu SNR ít hơn 9 dB, tức là có thể phục vụ thiết bị ở xa hơn hoặc dùng công suất thấp hơn."
+
+**Câu hỏi thầy hay hỏi:**  
+- *"Tại sao bước nhảy TX=1→TX=2 lớn (4,5 dB) còn TX=3→TX=4 nhỏ (2 dB)?"* → TX=2 cứu những gói kênh xấu, thêm MI từ kênh thứ hai độc lập → lợi lớn. Đến TX=4, gói còn lại là những gói kênh cực xấu, thêm MI mỗi TX được ít hơn.  
+- *"Kênh Rician K=15 dB có ảnh hưởng gì đến hình dạng đường?"* → K lớn → kênh gần tất định (LOS mạnh) → đường waterfall dốc hơn Rayleigh. Khi tích lũy n TX, bậc tự do của phân phối chi-bình phương tăng lên 2n → waterfall càng dốc.
 
 ---
 
-### Hình 4.3 — SE Goodput vs RTT (Thí nghiệm 2)
+### Hình 4.2 — $N_{\min}$ theo SCS (Thí nghiệm 2)
+
+**Mô tả biểu đồ:**  
+Biểu đồ cột nhóm. Trục x: 2 nhóm (LEO 600 km, LEO 1200 km). Mỗi nhóm: 4 cột màu = 4 SCS (15/30/60/120 kHz). Trục y: $N_{\min}$ (số tiến trình HARQ tối thiểu). **Đường đỏ ngang**: giới hạn N = 32 (TS 38.214). Cột vượt đường đỏ = không khả thi.
 
 **Cách đọc:**  
-- Trục x: RTT (ms); các đường thẳng đứng xám là RTT của từng quỹ đạo.  
-- Trục y: SE Goodput (bit/s/Hz); tối đa ~0,5 = giới hạn lý thuyết QPSK r=1/2.  
-- 4 đường màu = 4 cấu hình N (số tiến trình HARQ).  
-- Đường nào sụp đổ sớm hơn (sang trái hơn) = N nhỏ hơn → stall sớm hơn.
+- Cột dưới đường đỏ → SCS đó khả thi.  
+- Số trên cột: **đen** = khả thi; **đỏ đậm** = vượt giới hạn.
+
+**Bảng giá trị:**
+
+| Quỹ đạo | SCS 15 kHz | SCS 30 kHz | SCS 60 kHz | SCS 120 kHz |
+|---------|-----------|-----------|-----------|------------|
+| LEO 600 km | **14** ✓ | **27** ✓ | 53 ✗ | 105 ✗ |
+| LEO 1200 km | **26** ✓ | 50 ✗ | 99 ✗ | 196 ✗ |
+
+Chỉ **3/8 tổ hợp** khả thi: LEO 600 km SCS 15 và 30 kHz; LEO 1200 km SCS 15 kHz.
 
 **Điểm nhấn khi thuyết trình:**  
-> "Tại RTT = 13 ms (LEO 600 km, đường xám trái cùng), N = 32 vẫn đạt SE = 0,5 — không stall. Nhưng khi RTT tăng sang GEO (270 ms), cả 4 đường đều gần bằng 0. Đây là 'thảm họa pipeline': dù kênh tốt, bên phát cứ phải ngồi chờ."
+> "Trong 8 tổ hợp quỹ đạo × SCS, chỉ 3 tổ hợp thỏa mãn N_min ≤ 32. Điểm quan trọng: SCS cao hơn — thường gắn với băng thông rộng hơn — lại làm N_min tăng. Ở LEO 600 km, SCS 120 kHz cần 105 tiến trình, gấp hơn 3 lần giới hạn. Nguyên nhân: T_slot ngắn hơn nên cần nhiều tiến trình hơn để lấp cùng một RTT vật lý — RTT không phụ thuộc băng thông."
+
+**Câu hỏi thầy hay hỏi:**  
+- *"SCS 30 kHz ở LEO 600 km có N_min=27, tại sao chọn N=32?"* → N=32 là giới hạn tối đa TS 38.214. N=32 ≥ 27 → util = 100%, cấu hình tối ưu.  
+- *"Nếu 3GPP tăng giới hạn N lên 64 thì sao?"* → LEO 1200 km SCS 30 kHz (N_min=50) sẽ khả thi, và một số tổ hợp SCS 60 kHz cũng sẽ mở ra.
 
 ---
 
-### Hình 4.4 — N_min theo quỹ đạo và SCS (Thí nghiệm 3)
+### Hình 4.3 — Năng lượng/bit vs $E_s/N_0$ (Thí nghiệm 3)
+
+**Mô tả biểu đồ:**  
+Hệ trục bán-log. Trục x: $E_s/N_0$ (dB) từ −10 đến +25 dB. Trục y (log): $E_{\text{bit}}$ (J/bit), $P_{tx}=1$ W chuẩn hóa. Hai đường:
+- Đường chấm xám (×): **No HARQ** — vọt lên ở SNR âm.  
+- Đường xanh liền (○): **IR-HARQ** — gần phẳng trên toàn dải.
 
 **Cách đọc:**  
-- Biểu đồ cột nhóm; mỗi nhóm là một quỹ đạo; màu sắc = SCS.  
-- Đường đỏ ngang = giới hạn N = 32 (TS 38.214).  
-- Cột nào vượt đường đỏ → không khả thi; số màu đỏ đậm hiển thị giá trị.
+- Trục y log: 1 bậc = hệ số 10 lần, 3 bậc = 1000 lần.  
+- Tại SNR thấp (trái): No HARQ tăng vọt → BLER gần 100% → hầu hết năng lượng lãng phí.  
+- Tại SNR cao (phải): cả hai hội tụ về ~5×10⁻⁴ J/bit → avg_ntx → 1, BLER → 0.  
+- **Điểm quan trọng nhất:** ở −5 dB, đọc khoảng cách dọc giữa hai đường.
+
+**Giá trị tại các điểm SNR:**
+
+| $E_s/N_0$ | No HARQ ($E_{\text{bit}}$) | IR-HARQ ($E_{\text{bit}}$) | Tỷ lệ |
+|-----------|--------------------------|--------------------------|-------|
+| −5 dB | ~0,54 J/bit | ~1,1×10⁻³ J/bit | **~500 lần** |
+| 0 dB | ~5,2×10⁻⁴ J/bit | ~5,2×10⁻⁴ J/bit | ~1 lần |
+| +5 dB | ~5,0×10⁻⁴ J/bit | ~5,0×10⁻⁴ J/bit | ~1 lần |
+
+**Tại sao tại 0 dB hai đường gần bằng nhau?**  
+Ngưỡng BLER=10⁻³ của No HARQ là +2,0 dB. Tại 0 dB, kênh Rician K=15 dB còn khá tốt — BLER No HARQ chỉ ~3–5%, không quá cao → E_bit xấp xỉ bình thường. IR-HARQ hầu hết gói thành công ở TX=1 hoặc TX=2 → E_bit ≈ T_slot.
 
 **Điểm nhấn khi thuyết trình:**  
-> "Chỉ 3 cột nằm dưới đường đỏ: LEO 600 SCS 15/30 kHz và LEO 1200 SCS 15 kHz. Toàn bộ MEO và GEO đều vượt giới hạn. Nghịch lý: SCS cao hơn (cột phải hơn trong mỗi nhóm) lại làm N_min tăng vì T_slot ngắn hơn."
+> "Tại −5 dB, No HARQ cần 0,54 joule để giao thành công một bit — vì BLER gần 100%, hầu hết năng lượng bị lãng phí. IR-HARQ chỉ cần 1,1 millijoule/bit vì 4 TX tích lũy MI đưa BLER cuối về gần 0. Chênh lệch ~500 lần, tức gần 3 bậc độ lớn trên trục log. Với thiết bị IoT vệ tinh chạy pin, đây là sự khác biệt giữa vài giờ và hàng năm tuổi pin ở điều kiện SNR biên."
 
----
+**Tại sao không phải 10⁹ lần?**  
+Với kênh Rician K=15 dB, No HARQ không thất bại 100% gói tại −5 dB (BLER ≈ 99,9%, không phải 100%). E_bit bị giới hạn bởi: E_bit ≈ P_tx × T_slot / (1−BLER) ≈ 5×10⁻⁴ / 10⁻³ = 0,5 J/bit. Giá trị 500 lần là chính xác từ mô phỏng và vẫn rất ấn tượng.
 
-### Hình 4.5 — GEO: HARQ vs RLC ARQ (Thí nghiệm 4)
-
-**Cách đọc:**  
-- 3 bảng con: (a) BLER, (b) SE Goodput, (c) Độ trễ.  
-- Xanh = HARQ-IR N=32; Xanh lá đứt = RLC ARQ (HARQ disabled).
-
-**Điểm nhấn khi thuyết trình:**  
-> "(a) BLER: HARQ-IR đạt BLER cực thấp (< 10⁻⁸ trên toàn dải SNR) vì 4 TX kết hợp. RLC ARQ có BLER cao hơn (chỉ 1 TX). Nhưng nhìn sang (b) SE Goodput: HARQ-IR chỉ đạt 0,03 bit/s/Hz (flat), còn RLC ARQ đạt 0,5 bit/s/Hz — tức 16,7 lần hơn. BLER thấp của HARQ hoàn toàn bị xóa bởi util = 5,89 %. (c) Độ trễ: hai phương án xấp xỉ nhau ở SNR cao (~500 ms) vì cùng chịu RTT vệ tinh."
-
----
-
-### Hình 4.6 — Năng lượng/bit vs SNR (Thí nghiệm 5)
-
-**Cách đọc:**  
-- Trục y log: năng lượng/bit (J/bit); thấp hơn = hiệu quả hơn.  
-- Tại SNR thấp (−5 dB): No HARQ cần ~10⁶ J/bit vì BLER ≈ 1, hầu hết năng lượng bị lãng phí.  
-- Tại SNR cao: cả 3 đường hội tụ về ~5×10⁻⁴ J/bit vì avg_ntx → 1.
-
-**Điểm nhấn khi thuyết trình:**  
-> "Tại −5 dB, khoảng cách No HARQ và HARQ là 10 decade trên trục log — tức HARQ dùng ít năng lượng hơn 10⁹ lần để phát thành công một bit. Với thiết bị IoT vệ tinh dùng pin, đây là lợi thế cực kỳ lớn ở vùng coverage edge khi SNR thấp."
+**Câu hỏi thầy hay hỏi:**  
+- *"avg_ntx ở +5 dB là bao nhiêu?"* → ≈ 1,00 — kênh tốt nên TX=1 luôn thành công.  
+- *"Tại sao hai đường hội tụ ở SNR cao?"* → BLER_final → 0 và avg_ntx → 1 cho cả hai → E_bit → P_tx × T_slot = hằng số như nhau.  
+- *"IR-HARQ ở LEO 600 km SCS 30 kHz không bị stall — điều này ảnh hưởng thế nào đến E_bit?"* → util = 100% (N=32 ≥ N_min=27), nên E_bit công thức = P_tx × avg_ntx × T_slot / (util × (1−BLER_final)) = P_tx × avg_ntx × T_slot / (1 × 1) — không có penalti pipeline stall. Đây là cấu hình lý tưởng.

@@ -47,7 +47,7 @@ def run() -> None:
     bler_ir = simulate_harq_bler(SNR_DB, CH, ir_cfg, n_trials=N_TRIALS, seed=30)
 
     # ── Plot ────────────────────────────────────────────────────────────
-    ir_shades = plt.cm.Blues_r(np.linspace(0.05, 0.55, mcs.max_retx + 1))
+    ir_shades = plt.cm.Blues(np.linspace(0.35, 0.90, mcs.max_retx + 1))
     markers   = ["o", "s", "^", "D"]
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
