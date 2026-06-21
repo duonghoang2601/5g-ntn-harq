@@ -6,36 +6,36 @@ Mạng di động thế hệ thứ năm (5G) không chỉ giới hạn ở cơ s
 
 Tuy nhiên, kênh vệ tinh có hai đặc điểm cơ bản khác biệt so với kênh mặt đất:
 \begin{itemize}
-    \item \textbf{Độ trễ lan truyền lớn:} RTT từ 12{,}88 ms (LEO 600 km) đến 270{,}57 ms (GEO) theo TR 38.811~\cite{tr38811}, gấp hàng trăm lần so với mạng mặt đất (thường $< 1$ ms).
+    \item \textbf{Độ trễ lan truyền lớn:} RTT từ 12{,}88 ms (LEO 600 km) trở lên theo TR 38.811~\cite{tr38811}, gấp hàng chục đến hàng trăm lần so với mạng mặt đất (thường $< 1$ ms).
     \item \textbf{Kênh LOS mạnh (Rician):} Do quỹ đạo vệ tinh ở độ cao lớn, thành phần tầm nhìn thẳng (LOS) chiếm ưu thế, được đặc trưng bởi hệ số Rician $K$ cao (điển hình 15 dB theo~\cite{tuninato2025}).
 \end{itemize}
 
-Cơ chế HARQ -- nền tảng của lớp MAC trong 5G NR -- được thiết kế cho RTT mặt đất và giới hạn tối đa 32 tiến trình (TS 38.214~\cite{ts38214}). Khi áp dụng cho NTN, câu hỏi cốt lõi là: \textit{HARQ có còn hiệu quả không, và nếu không, cần thay thế bằng cơ chế nào?}
+Cơ chế HARQ -- nền tảng của lớp MAC trong 5G NR -- được thiết kế cho RTT mặt đất và giới hạn tối đa 32 tiến trình (TS 38.214~\cite{ts38214}). Khi áp dụng cho NTN LEO, câu hỏi cốt lõi là: \textit{IR-HARQ còn hiệu quả ở mức độ nào, và cấu hình SCS nào giúp tránh pipeline stall?}
 
 \subsection{Mục tiêu báo cáo}
 
 Báo cáo này có ba mục tiêu chính:
 \begin{enumerate}
-    \item Xây dựng mô hình mô phỏng Monte Carlo cho HARQ Chase Combining (CC) và Incremental Redundancy (IR) trong kênh Rician NTN, tuân theo TR 38.811 và tham số hóa theo~\cite{tuninato2025}.
-    \item Đánh giá định lượng hiệu quả HARQ theo năm chiều: BLER vs SNR, SE Goodput vs RTT, phân tích N$_{\min}$, so sánh HARQ/RLC ARQ tại GEO, và hiệu quả năng lượng.
-    \item Xác minh kết quả mô phỏng bằng phân tích lý thuyết (CDF Rician, bất đẳng thức Jensen) và đề xuất cấu hình HARQ tối ưu cho từng quỹ đạo.
+    \item Xây dựng mô hình mô phỏng Monte Carlo cho IR-HARQ (Incremental Redundancy) trong kênh Rician NTN tại quỹ đạo LEO, tuân theo TR 38.811 và tham số hóa theo~\cite{tuninato2025}.
+    \item Đánh giá định lượng hiệu quả IR-HARQ theo ba chiều: BLER vs SNR, ràng buộc N$_{\min}$ pipeline, và hiệu quả năng lượng trên bit.
+    \item Xác định cấu hình SCS và số tiến trình HARQ phù hợp cho từng quỹ đạo LEO.
 \end{enumerate}
 
 \subsection{Phạm vi nghiên cứu}
 
 \begin{itemize}
     \item \textbf{Kênh:} Rician phẳng một trạng thái (flat fading, single-state LMS), K = 15 dB, SCS 30 kHz (mặc định), $f_c = 20$ GHz, tốc độ UE 50 km/h.
-    \item \textbf{Quỹ đạo:} LEO 600 km, LEO 1200 km, MEO 10000 km, GEO 35786 km.
-    \item \textbf{MCS:} MCS A (QPSK, $r = 1/2$) và MCS B (256QAM, $r = 8/9$).
-    \item \textbf{HARQ:} Tối đa 4 lần phát ($\text{max\_retx} = 3$), chuỗi RV \{0, 2, 3, 1\} (TS 38.212~\cite{ts38212}).
+    \item \textbf{Quỹ đạo:} LEO 600 km và LEO 1200 km (payload tái sinh, góc ngẩng 10°).
+    \item \textbf{MCS:} MCS A (QPSK, $r = 1/2$).
+    \item \textbf{HARQ:} IR-HARQ, tối đa 4 lần phát ($\text{max\_retx} = 3$), chuỗi RV \{0, 2, 3, 1\} (TS 38.212~\cite{ts38212}).
     \item \textbf{Không xét:} MIMO, beam management, overhead lớp cao.
 \end{itemize}
 
 \subsection{Cấu trúc báo cáo}
 
 \begin{itemize}
-    \item \textbf{Chương 2} trình bày cơ sở lý thuyết: từ ARQ cơ bản đến HARQ CC và IR, đặc tính kênh vệ tinh Rician, và vấn đề pipeline trong NTN.
+    \item \textbf{Chương 2} trình bày cơ sở lý thuyết: tổng quan 5G-NTN, từ ARQ cơ bản đến IR-HARQ, đặc tính kênh vệ tinh Rician, và vấn đề pipeline trong NTN.
     \item \textbf{Chương 3} mô tả phương pháp mô phỏng: mô hình kênh, mô hình BLER dựa trên MI, bộ quản lý tiến trình HARQ và các tham số lựa chọn.
-    \item \textbf{Chương 4} trình bày và phân tích toàn bộ kết quả mô phỏng từ năm thí nghiệm, bao gồm bảng số liệu và đồ thị.
+    \item \textbf{Chương 4} trình bày và phân tích kết quả mô phỏng từ ba thí nghiệm, bao gồm bảng số liệu và đồ thị.
     \item \textbf{Phần Kết luận} tóm tắt các phát hiện chính và đề xuất hướng phát triển.
 \end{itemize}
